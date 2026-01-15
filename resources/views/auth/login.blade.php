@@ -11,9 +11,7 @@
 
 <body>
     <div class="min-h-screen bg-gray-100 flex flex-col justify-center py-12 px-6 lg:px-8">
-        <div style="">
-
-        </div>
+        
         <div class="sm:mx-auto sm:w-full sm:max-w-md text-center">
             <h2 class="text-3xl font-extrabold text-gray-900">Sign in to your account</h2>
             <p class="mt-2 text-sm text-gray-600">

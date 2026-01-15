@@ -9,7 +9,17 @@ class Exam extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['class_id', 'title', 'duration'];
+    protected $fillable = ['class_id', 'title', 'duration', 'due_at', 'closed_at'];
+
+    protected $casts = [
+        'due_at' => 'datetime',
+        'closed_at' => 'datetime',
+    ];
+
+    public function isOpen() {
+        if (!$this->closed_at) return true;
+        return now()->lt($this->closed_at);
+    }
 
     public function classRoom() {
         return $this->belongsTo(ClassRoom::class, 'class_id');

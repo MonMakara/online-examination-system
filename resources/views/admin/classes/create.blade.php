@@ -20,7 +20,8 @@
             <p class="text-sm text-gray-500">Setup a new classroom and assign a lead teacher.</p>
         </div>
 
-        <form action="{{route('admin.classes.store')}}" method="POST" class="p-8 space-y-6">
+        {{-- IMPORTANT: Added enctype="multipart/form-data" --}}
+        <form action="{{route('admin.classes.store')}}" method="POST" enctype="multipart/form-data" class="p-8 space-y-6">
             @csrf
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -50,17 +51,46 @@
                             </div>
                         </div>
                     </div>
+
+                    {{-- Logo Upload Field --}}
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Class Logo</label>
+                        <div class="flex items-center justify-center w-full">
+                            <label for="logo" class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition">
+                                <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                    <svg class="w-8 h-8 mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
+                                    <p class="mb-2 text-xs text-gray-500"><span class="font-semibold">Click to upload</span> or drag and drop</p>
+                                    <p class="text-[10px] text-gray-400">PNG, JPG or SVG (MAX. 2MB)</p>
+                                </div>
+                                <input id="logo" name="logo" type="file" class="hidden" accept="image/*" onchange="previewImage(event)"/>
+                            </label>
+                        </div>
+                        @error('logo')
+                            <p class="mt-2 text-xs text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
                 </div>
 
-                <div class="bg-indigo-50/50 border border-indigo-100 p-6 rounded-xl">
-                    <h3 class="text-indigo-800 font-bold mb-2 flex items-center">
-                        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>
-                        About Join Codes
-                    </h3>
-                    <p class="text-sm text-indigo-700 leading-relaxed">
-                        Once created, the system generates a unique <strong>6-character alphanumeric code</strong>. 
-                        Give this code to your students so they can join this specific classroom.
-                    </p>
+                <div class="space-y-6">
+                    {{-- Logo Preview Box --}}
+                    <div class="bg-gray-50 border border-gray-200 p-6 rounded-xl flex flex-col items-center justify-center min-h-[150px]">
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">Logo Preview</p>
+                        <div id="preview-container" class="h-24 w-24 rounded-2xl bg-white border border-gray-100 shadow-sm flex items-center justify-center overflow-hidden">
+                            <span id="preview-placeholder" class="text-gray-300 text-xs italic">No Image</span>
+                            <img id="image-preview" class="hidden h-full w-full object-cover">
+                        </div>
+                    </div>
+
+                    <div class="bg-indigo-50/50 border border-indigo-100 p-6 rounded-xl">
+                        <h3 class="text-indigo-800 font-bold mb-2 flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>
+                            About Join Codes
+                        </h3>
+                        <p class="text-sm text-indigo-700 leading-relaxed">
+                            Once created, the system generates a unique <strong>6-character alphanumeric code</strong>. 
+                            Give this code to your students so they can join this specific classroom.
+                        </p>
+                    </div>
                 </div>
             </div>
 
@@ -75,4 +105,19 @@
         </form>
     </div>
 </div>
+
+{{-- JavaScript for Real-time Image Preview --}}
+<script>
+    function previewImage(event) {
+        const reader = new FileReader();
+        reader.onload = function() {
+            const output = document.getElementById('image-preview');
+            const placeholder = document.getElementById('preview-placeholder');
+            output.src = reader.result;
+            output.classList.remove('hidden');
+            placeholder.classList.add('hidden');
+        }
+        reader.readAsDataURL(event.target.files[0]);
+    }
+</script>
 @endsection

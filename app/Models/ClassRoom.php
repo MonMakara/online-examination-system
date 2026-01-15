@@ -9,7 +9,7 @@ class ClassRoom extends Model
 {
     use HasFactory;
     
-    protected $fillable = ['name', 'code', 'teacher_id'];
+    protected $fillable = ['name', 'code', 'teacher_id', 'logo'];
 
     public function teacher() {
         return $this->belongsTo(User::class, 'teacher_id');

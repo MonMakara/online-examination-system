@@ -14,12 +14,11 @@ class TeacherController extends Controller
     public function dashboard() {
         $teacher = auth()->user();
 
-        // Change ->get() to ->paginate(5)
         $classes = ClassRoom::where('teacher_id', $teacher->id)
-                    ->withCount(['students', 'exams'])
-                    ->paginate(5);
+            ->with(['students'])
+            ->withCount(['students', 'exams'])
+            ->paginate(5);
 
-        // We still calculate totals the same way
         $totalStudent = ClassRoom::where('teacher_id', $teacher->id)
                         ->withCount('students')
                         ->get()
@@ -85,8 +84,27 @@ class TeacherController extends Controller
     }
 
     // Show page grade
-    public function showGrades() {
-        $exams = Exam::where('teacher_id', auth()->id())->with(['results.student', 'classRomm'])->latest()->get();
-        return view('teacher.grades.index', compact('exams'));
+    // 1. This shows the page with all Class Cards
+    public function gradesIndex() {
+        $classes = ClassRoom::where('teacher_id', auth()->id())
+                    ->withCount(['students', 'exams'])
+                    ->get();
+
+        return view('teacher.grades.select_class', compact('classes'));
+    }
+
+    // 2. This shows the results for the specific class clicked
+    public function showClassGrades($id) 
+    {
+        $class = ClassRoom::where('id', $id)
+                    ->where('teacher_id', auth()->id())
+                    ->firstOrFail();
+
+        $exams = Exam::where('class_id', $id)
+                    ->with(['results.student', 'classRoom'])
+                    ->latest()
+                    ->get();
+
+        return view('teacher.grades.index', compact('exams', 'class'));
     }
 }

@@ -69,11 +69,27 @@
                                     <tr class="hover:bg-gray-50 transition">
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="flex items-center">
+                                                {{-- Profile Image Logic --}}
                                                 <div
-                                                    class="h-8 w-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs mr-3">
-                                                    {{ substr($student->name, 0, 1) }}
+                                                    class="h-9 w-9 rounded-full ring-2 ring-gray-100 flex-shrink-0 overflow-hidden">
+                                                    @if ($student->profile_image)
+                                                        <img src="{{ asset('storage/' . $student->profile_image) }}"
+                                                            alt="{{ $student->name }}" class="h-full w-full object-cover">
+                                                    @else
+                                                        <div
+                                                            class="h-full w-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs uppercase">
+                                                            {{ substr($student->name, 0, 1) }}
+                                                        </div>
+                                                    @endif
                                                 </div>
-                                                <span class="text-sm font-bold text-gray-800">{{ $student->name }}</span>
+
+                                                <div class="ml-3">
+                                                    <span
+                                                        class="text-sm font-bold text-gray-800 block leading-tight">{{ $student->name }}</span>
+                                                    <span
+                                                        class="text-[10px] text-gray-400 font-medium tracking-tight">Student
+                                                        ID: #{{ $student->id }}</span>
+                                                </div>
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
@@ -109,20 +125,32 @@
                             New</a>
                     </div>
                     <div class="p-4 space-y-3">
-                        @forelse($exams as $exam)
+                        @forelse ($exams as $exam)
                             <div
-                                class="flex items-center justify-between p-3 border border-gray-100 rounded-lg hover:border-indigo-200 transition group">
-                                <div>
-                                    <p class="text-sm font-bold text-gray-800">{{ $exam->title }}</p>
-                                    <p class="text-[10px] text-gray-400 uppercase tracking-tighter">
-                                        {{ $exam->questions_count }} Questions</p>
+                                class="p-3 border rounded-lg {{ $exam->isOpen() ? 'border-gray-100' : 'bg-gray-50 opacity-75' }}">
+                                <div class="flex justify-between items-start">
+                                    <p class="text-sm font-bold {{ $exam->isOpen() ? 'text-gray-800' : 'text-gray-400' }}">
+                                        {{ $exam->title }}
+                                    </p>
+                                    <span
+                                        class="h-2 w-2 rounded-full {{ $exam->isOpen() ? 'bg-green-500' : 'bg-red-500' }}"></span>
                                 </div>
-                                <span
-                                    class="h-2 w-2 rounded-full {{ $exam->is_active ? 'bg-green-500' : 'bg-gray-300' }}"></span>
+
+                                <div class="mt-2 space-y-1">
+                                    <p class="text-[10px] text-gray-500">
+                                        <span class="font-bold">Due:</span>
+                                        {{ $exam->due_at ? $exam->due_at->format('M d, h:i A') : 'No Limit' }}
+                                    </p>
+                                    <p
+                                        class="text-[10px] {{ $exam->closed_at && now()->gt($exam->closed_at) ? 'text-red-500' : 'text-gray-400' }}">
+                                        <span class="font-bold">Closes:</span>
+                                        {{ $exam->closed_at ? $exam->closed_at->format('M d, h:i A') : 'Manual Only' }}
+                                    </p>
+                                </div>
                             </div>
                         @empty
                             <p class="text-xs text-center text-gray-400 py-4">No exams assigned to this class.</p>
-                        @endforelse
+                        @endforelse {{-- Ensure this matches the @forelse above --}}
                     </div>
                 </div>
 

@@ -22,9 +22,9 @@ class StudentController extends Controller
         $classes = $student->enrolledClasses()->with('teacher')->get();
 
         $classIds = $classes->pluck('id');
-        
+
         $pendingExamsCount = Exam::whereIn('class_id', $classIds)
-            ->whereDoesntHave('results', function($query) use ($student) {
+            ->whereDoesntHave('results', function ($query) use ($student) {
                 $query->where('user_id', $student->id);
             })->count();
 
@@ -32,7 +32,8 @@ class StudentController extends Controller
     }
 
     // Join class
-    public function joinClass(Request $request) {
+    public function joinClass(Request $request)
+    {
         $request->validate([
             'code' => 'required|string|exists:class_rooms,code',
         ], [
@@ -60,132 +61,157 @@ class StudentController extends Controller
         return redirect()->route('student.dashboard')->with('success', 'Successfully joined ' . $class->name . '!');
     }
 
-    public function profile() {
+    public function profile()
+    {
         return view('student.profile', ['user' => auth()->user()]);
-
     }
 
-    public function updateProfile(Request $request){
-    $user = auth()->user();
+    public function updateProfile(Request $request)
+    {
+        $user = auth()->user();
 
-    $request->validate([
-        'name' => 'required|string|max:255',
-        'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
-        'profile_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-        'current_password' => 'nullable|required_with:new_password',
-        'new_password' => 'nullable|min:8|confirmed',
-    ]);
-
-    // Password Update Logic
-    if ($request->filled('new_password')) {
-        if (! Hash::check($request->current_password, $user->password)) {
-            return back()->withErrors(['current_password' => 'The provided current password does not match our records.']);
-        }
-        $user->password = Hash::make($request->new_password);
-    }
-
-    // Image Upload Logic
-    if ($request->hasFile('profile_image')) {
-        // Delete old image if it exists
-        if ($user->profile_image) {
-            Storage::delete('public/' . $user->profile_image);
-        }
-        $path = $request->file('profile_image')->store('student_profiles', 'public');
-        $user->profile_image = $path;
-    }
-
-    $user->name = $request->name;
-    $user->email = $request->email;
-    $user->save();
-
-    return back()->with('success', 'Your profile has been updated successfully!');
-}
-
-    public function activeExams() {
-    $studentId = auth()->id();
-
-    // 1. Get IDs of classes the student is enrolled in
-    $enrolledClassIds = DB::table('class_student')
-        ->where('student_id', $studentId)
-        ->pluck('class_id');
-
-    // 2. Get exams for those classes that the student hasn't taken yet
-    $exams = Exam::whereIn('class_id', $enrolledClassIds)
-        ->whereDoesntHave('results', function($query) use ($studentId) {
-            $query->where('user_id', $studentId);
-        })
-        ->with(['classRoom', 'questions'])
-        ->withCount('questions')
-        ->latest()
-        ->get();
-
-    return view('student.exams.active', compact('exams'));
-}
-
-public function startExam($id)
-{
-    // 1. Fetch exam with questions
-    $exam = Exam::with('questions')->findOrFail($id);
-
-    // 2. Security: Check if student already has a result for this exam
-    $hasTaken = Result::where('user_id', auth()->id())
-                      ->where('exam_id', $id)
-                      ->exists();
-
-    if ($hasTaken) {
-        return redirect()->route('student.exams.index')
-                         ->with('warning', 'You have already completed this exam.');
-    }
-
-    return view('student.exams.take', compact('exam'));
-}
-
-
-public function submitExam(Request $request, $id)
-{
-    $userId = auth()->id();
-    // Load exam with questions to compare answers
-    $exam = Exam::with('questions')->findOrFail($id);
-
-    // 1. Validation
-    $request->validate([
-        'answers' => 'required|array',
-    ]);
-
-    $studentAnswers = $request->input('answers'); // Format: [question_id => 'a']
-    $correctCount = 0;
-    $totalQuestions = $exam->questions->count();
-
-    // 2. Loop through questions to check correctness
-    foreach ($exam->questions as $question) {
-        $selectedOption = $studentAnswers[$question->id] ?? null;
-
-        // Save individual answer for teacher review
-        StudentAnswer::create([
-            'user_id' => $userId,
-            'exam_id' => $id,
-            'question_id' => $question->id,
-            'selected_option' => $selectedOption,
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'profile_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'current_password' => 'nullable|required_with:new_password',
+            'new_password' => 'nullable|min:8|confirmed',
         ]);
 
-        // Increment score if correct
-        if ($selectedOption === $question->correct_option) {
-            $correctCount++;
+        // Password Update Logic
+        if ($request->filled('new_password')) {
+            if (! Hash::check($request->current_password, $user->password)) {
+                return back()->withErrors(['current_password' => 'The provided current password does not match our records.']);
+            }
+            $user->password = Hash::make($request->new_password);
         }
+
+        // Image Upload Logic
+        if ($request->hasFile('profile_image')) {
+            // Delete old image if it exists
+            if ($user->profile_image) {
+                Storage::delete('public/' . $user->profile_image);
+            }
+            $path = $request->file('profile_image')->store('student_profiles', 'public');
+            $user->profile_image = $path;
+        }
+
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->save();
+
+        return back()->with('success', 'Your profile has been updated successfully!');
     }
 
-    // 3. Calculate percentage score
-    $finalScore = ($totalQuestions > 0) ? ($correctCount / $totalQuestions) * 100 : 0;
+    // Active Exams Method
+    public function activeExams()
+    {
+        $studentId = auth()->id();
+        $now = now();
 
-    // 4. Save to Results table (Using the correct App\Models\Result)
-    Result::create([
-        'user_id' => $userId,
-        'exam_id' => $id,
-        'score' => round($finalScore),
-    ]);
+        $enrolledClassIds = DB::table('class_student')
+            ->where('student_id', $studentId)
+            ->pluck('class_id');
 
-    return redirect()->route('student.exams.index')->with('success', 'Exam submitted successfully! Your score: ' . round($finalScore) . '%');
-}
+        $exams = Exam::whereIn('class_id', $enrolledClassIds)
+            ->whereDoesntHave('results', function ($query) use ($studentId) {
+                $query->where('user_id', $studentId);
+            })
+            // Filter out exams that are strictly closed
+            ->where(function ($query) use ($now) {
+                $query->whereNull('closed_at')
+                    ->orWhere('closed_at', '>', $now);
+            })
+            ->with(['classRoom.teacher']) // Links Exam -> ClassRoom -> Teacher
+            ->withCount('questions')
+            ->latest()
+            ->get();
 
-    
+        return view('student.exams.active', compact('exams'));
+    }
+
+    public function startExam($id)
+    {
+        $studentId = auth()->id();
+
+        // Fetch exam with questions and the teacher through classroom
+        $exam = Exam::with(['questions', 'classRoom.teacher'])
+            ->withCount('questions')
+            ->findOrFail($id);
+
+        // Security: Check if already submitted
+        $alreadyTaken = Result::where('exam_id', $id)->where('user_id', $studentId)->exists();
+        if ($alreadyTaken) {
+            return redirect()->route('student.exams.index')->with('warning', 'You have already completed this exam.');
+        }
+
+        // Deadline Check: Is it hard closed?
+        if ($exam->closed_at && now()->gt($exam->closed_at)) {
+            return redirect()->route('student.exams.index')->with('warning', 'This exam is now closed.');
+        }
+
+        return view('student.exams.take', compact('exam'));
+    }
+
+    // Submit Exam Method
+    public function submitExam(Request $request, $id)
+    {
+        $userId = auth()->id();
+        $exam = Exam::with('questions')->findOrFail($id);
+        $now = now();
+
+        // 1. Hard Lock check
+        if ($exam->closed_at && $now->gt($exam->closed_at)) {
+            return redirect()->route('student.exams.index')
+                ->with('warning', 'The submission window for this exam has closed.');
+        }
+
+        $request->validate(['answers' => 'required|array']);
+        $studentAnswers = $request->input('answers');
+        $correctCount = 0;
+        $totalQuestions = $exam->questions->count();
+
+        foreach ($exam->questions as $question) {
+            $selectedOption = $studentAnswers[$question->id] ?? null;
+
+            StudentAnswer::create([
+                'user_id' => $userId,
+                'exam_id' => $id,
+                'question_id' => $question->id,
+                'selected_option' => $selectedOption,
+            ]);
+
+            if ($selectedOption === $question->correct_option) {
+                $correctCount++;
+            }
+        }
+
+        $finalScore = ($totalQuestions > 0) ? ($correctCount / $totalQuestions) * 100 : 0;
+
+        // 2. Save Result (Standard columns only)
+        Result::create([
+            'user_id' => $userId,
+            'exam_id' => $id,
+            'score' => round($finalScore),
+        ]);
+
+        // 3. Determine if they were late to show the correct message
+        if ($exam->due_at && $now->gt($exam->due_at)) {
+            return redirect()->route('student.exams.index')
+                ->with('info', 'Exam submitted successfully, but it was marked as a LATE submission.');
+        }
+
+        return redirect()->route('student.exams.index')
+            ->with('success', 'Exam submitted successfully! Score: ' . round($finalScore) . '%');
+    }
+
+    public function myResults()
+    {
+        $results = Result::where('user_id', auth()->id())
+            ->with(['exam.classRoom.teacher'])
+            ->latest()
+            ->get();
+
+        return view('student.results.index', compact('results'));
+    }
 }

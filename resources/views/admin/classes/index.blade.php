@@ -99,47 +99,100 @@
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-100">
                         @forelse ($classes as $class)
-                            <tr class="hover:bg-gray-50 transition">
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-bold text-gray-900">{{ $class->name }}</div>
-                                    <div class="text-xs text-gray-500">Class ID: #{{ $class->id }}</div>
-                                </td>
+                            <tr class="hover:bg-gray-50/50 transition-colors group">
+                                {{-- Class Info with Logo --}}
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
                                         <div
-                                            class="h-7 w-7 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 text-[10px] font-bold mr-2">
-                                            {{-- Logic to get initials --}}
-                                            {{ strtoupper(substr($class->teacher->name ?? 'N/A', 0, 2)) }}
+                                            class="h-10 w-10 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center overflow-hidden mr-3">
+                                            @if ($class->logo)
+                                                <img src="{{ asset('storage/' . $class->logo) }}"
+                                                    class="h-full w-full object-cover">
+                                            @else
+                                                <span
+                                                    class="text-gray-400 font-bold text-lg">{{ substr($class->name, 0, 1) }}</span>
+                                            @endif
                                         </div>
-                                        <div class="text-sm text-gray-600">{{ $class->teacher->name ?? 'Unassigned' }}
+                                        <div>
+                                            <div
+                                                class="text-sm font-black text-gray-900 group-hover:text-indigo-600 transition">
+                                                {{ $class->name }}</div>
+                                            <div class="text-[10px] text-gray-400 uppercase tracking-widest font-bold">ID:
+                                                #{{ $class->id }}</div>
                                         </div>
                                     </div>
                                 </td>
+
+                                {{-- Teacher Info --}}
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div
+                                            class="h-8 w-8 rounded-full border-2 border-white shadow-sm overflow-hidden bg-indigo-50 flex items-center justify-center mr-2">
+                                            @if ($class->teacher && $class->teacher->profile_image)
+                                                <img src="{{ asset('storage/' . $class->teacher->profile_image) }}"
+                                                    class="h-full w-full object-cover">
+                                            @else
+                                                <span
+                                                    class="text-indigo-600 text-[10px] font-bold">{{ strtoupper(substr($class->teacher->name ?? '?', 0, 1)) }}</span>
+                                            @endif
+                                        </div>
+                                        <div class="text-sm text-gray-600 font-medium">
+                                            {{ $class->teacher->name ?? 'Unassigned' }}</div>
+                                    </div>
+                                </td>
+
+                                {{-- Join Code --}}
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span
-                                        class="font-mono bg-indigo-50 text-indigo-700 px-3 py-1 rounded-md text-sm font-bold border border-indigo-100">
+                                        class="font-mono bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg text-xs font-black border border-indigo-100 tracking-wider">
                                         {{ $class->code }}
                                     </span>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                                    {{ $class->students_count }} Students
+
+                                {{-- Students Count Badge --}}
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span
+                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold {{ $class->students_count > 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-500' }}">
+                                        {{ $class->students_count }} Students
+                                    </span>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <a href="{{ route('admin.classes.edit', $class->id) }}"
-                                        class="text-indigo-600 hover:text-indigo-900 mr-4 font-bold">Edit</a>
-                                    <form action="{{ route('admin.classes.destroy', $class->id) }}" method="POST"
-                                        class="inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-red-600 hover:text-red-900 font-bold"
-                                            onclick="return confirm('Delete this class?')">Delete</button>
-                                    </form>
+                                <td class="px-8 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    {{-- Use flex and items-center here to keep them in a row --}}
+                                    <div class="flex justify-end items-center space-x-2">
+
+                                        {{-- Edit Button --}}
+                                        <a href="{{ route('admin.classes.edit', $class->id) }}"
+                                            class="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition bg-white border border-gray-100 shadow-sm"
+                                            title="Edit Class">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                            </svg>
+                                        </a>
+
+                                        {{-- Delete Button Wrapper --}}
+                                        {{-- Added 'flex' and 'items-center' to the form below --}}
+                                        <form action="{{ route('admin.classes.destroy', $class->id) }}" method="POST"
+                                            class="flex items-center m-0"
+                                            onsubmit="return confirm('Are you sure you want to delete this class?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit"
+                                                class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition bg-white border border-gray-100 shadow-sm"
+                                                title="Delete Class">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </button>
+                                        </form>
+
+                                    </div>
                                 </td>
                             </tr>
                         @empty
-                            <tr>
-                                <td colspan="5" class="px-6 py-10 text-center text-gray-500">No classes found.</td>
-                            </tr>
+                            {{-- ... empty state ... --}}
                         @endforelse
                     </tbody>
                 </table>
@@ -180,7 +233,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         // Find all alert divs
         const alerts = document.querySelectorAll('[role="alert"]');
-        
+
         alerts.forEach(alert => {
             setTimeout(() => {
                 alert.style.transition = "opacity 0.5s ease";

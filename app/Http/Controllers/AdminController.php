@@ -14,26 +14,28 @@ use Illuminate\Support\Str;
 class AdminController extends Controller
 {
     // Dashboard
-    public function dashboard() {
+    public function dashboard()
+    {
         $teachers = User::where('role', 'teacher')->get();
         $classes = ClassRoom::with('teacher')->get();
         $studentCount = User::where('role', 'student')->count();
 
         return view('admin.dashboard', compact('teachers', 'classes', 'studentCount'));
     }
-    
+
     /* Teachers management */
 
     // Show teachers page
-    public function indexTeachers(Request $request) {
+    public function indexTeachers(Request $request)
+    {
         $query = User::where('role', 'teacher')->with('managedClasses');
 
         // If search term exists, filter by name or email
         if ($request->has('search') && $request->search != '') {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                ->orWhere('email', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%");
             });
         }
 
@@ -43,16 +45,17 @@ class AdminController extends Controller
         $teachers->appends(['search' => $request->search]);
 
         return view('admin.teachers.index', compact('teachers'));
-
     }
 
     // Show form to create teacher
-    public function createTeachers() {
+    public function createTeachers()
+    {
         return view('admin.teachers.create');
     }
 
     // Store teacher
-    public function storeTeachers(Request $request) {
+    public function storeTeachers(Request $request)
+    {
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
@@ -70,14 +73,16 @@ class AdminController extends Controller
     }
 
     // Show form to update teacher
-    public function editTeachers($id) {
+    public function editTeachers($id)
+    {
 
         $teacher = User::where('role', 'teacher')->findOrFail($id);
         return view('admin.teachers.edit', compact('teacher'));
     }
 
     // Update teacher
-    public function updateTeachers(Request $request, $id) {
+    public function updateTeachers(Request $request, $id)
+    {
 
         $teacher = User::where('role', 'teacher')->findOrFail($id);
 
@@ -99,7 +104,8 @@ class AdminController extends Controller
     }
 
     // Delete teacher
-    public function destroyTeachers($id) {
+    public function destroyTeachers($id)
+    {
         $teacher = User::where('role', 'teacher')->findOrFail($id);
         $teacher->delete();
 
@@ -107,11 +113,12 @@ class AdminController extends Controller
     }
 
 
-    
+
     /* Classes management */
 
     // Show classes page
-    public function indexClasses(Request $request) {
+    public function indexClasses(Request $request)
+    {
 
         $query = ClassRoom::with('teacher')->withCount('students');
 
@@ -126,7 +133,8 @@ class AdminController extends Controller
     }
 
     // Show form to create class
-    public function createClasses() {
+    public function createClasses()
+    {
 
         $teachers = User::where('role', 'teacher')->get();
 
@@ -134,15 +142,28 @@ class AdminController extends Controller
     }
 
     // Store class
-    public function storeClasses(Request $request) {
+    public function storeClasses(Request $request)
+    {
+        // 1. Updated Validation to include the logo
         $request->validate([
             'name' => 'required|string|max:255',
             'teacher_id' => 'required|exists:users,id',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,svg|max:2048', // 2MB Max
         ]);
 
+        $logoPath = null;
+
+        // 2. Logic to store the file
+        if ($request->hasFile('logo')) {
+            // This stores the image in storage/app/public/class_logos
+            $logoPath = $request->file('logo')->store('class_logos', 'public');
+        }
+
+        // 3. Create the class with the logo path
         ClassRoom::create([
             'name' => $request->name,
             'teacher_id' => $request->teacher_id,
+            'logo' => $logoPath, // Save the path string here
             'code' => strtoupper(Str::random(6)),
         ]);
 
@@ -160,24 +181,40 @@ class AdminController extends Controller
 
     // Update class
     public function updateClasses(Request $request, $id) {
-
         $class = ClassRoom::findOrFail($id);
 
+        // 1. Updated Validation
         $request->validate([
             'name' => 'required|string|max:255',
             'teacher_id' => 'required|exists:users,id',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,svg|max:2048', // Added logo validation
         ]);
 
+        // 2. Handle Logo Upload
+        if ($request->hasFile('logo')) {
+            // Delete the old logo file from storage if it exists
+            if ($class->logo && Storage::disk('public')->exists($class->logo)) {
+                Storage::disk('public')->delete($class->logo);
+            }
+
+            // Store the new logo and update the path
+            $logoPath = $request->file('logo')->store('class_logos', 'public');
+            $class->logo = $logoPath;
+        }
+
+        // 3. Update the record
         $class->update([
             'name' => $request->name,
             'teacher_id' => $request->teacher_id,
+            'logo' => $class->logo, // Ensure the logo path is included in the update
         ]);
 
         return redirect()->route('admin.classes.index')->with('info', 'Class updated successfully');
     }
 
     // Destroy class
-    public function destroyClasses($id) {
+    public function destroyClasses($id)
+    {
         $class = ClassRoom::findOrFail($id);
         $class->delete();
 
@@ -185,7 +222,8 @@ class AdminController extends Controller
     }
 
     // Show setting
-    public function profile() {
+    public function profile()
+    {
 
         return view('admin.profile', ['user' => auth()->user()]);
     }
@@ -220,17 +258,15 @@ class AdminController extends Controller
             if (!Hash::check($request->current_password, $user->password)) {
                 return back()->withErrors(['current_password' => 'Your current password does not match our records.']);
             }
-            
+
             $user->password = Hash::make($request->new_password);
         }
 
         $user->name = $request->name;
         $user->email = $request->email;
-        
+
         $user->save();
 
         return back()->with('success', 'Profile updated successfully!');
     }
-
-
 }

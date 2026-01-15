@@ -64,7 +64,7 @@
                                 class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                         </div>
                         @error('name')
-                            <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                           <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
 
@@ -77,7 +77,7 @@
                     <div class="mt-6">
                         <div class="relative">
                             <div class="absolute inset-0 flex items-center">
-                                <div class="w-full border-t border-gray-300"></div>
+                              <div class="w-full border-t border-gray-300"></div>
                             </div>
                             <div class="relative flex justify-center text-sm">
                                 <span class="px-2 bg-white text-gray-500">Or register with</span>

@@ -29,15 +29,13 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     // Dashboard page
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
 
-
     // Teachers management
     Route::get('/teachers', [AdminController::class, 'indexTeachers'])->name('teachers.index');
     Route::get('/teachers/create', [AdminController::class, 'createTeachers'])->name('teachers.create');
     Route::post('/teachers', [AdminController::class, 'storeTeachers'])->name('teachers.store');
     Route::get('/teacher/edit/{id}', [AdminController::class, 'editTeachers'])->name('teachers.edit');
     Route::patch('/teacher/update/{id}', [AdminController::class, 'updateTeachers'])->name('teachers.update');
-    Route::delete('/teacher/delelete/{id}', [AdminController::class, 'destroyTeachers'])->name('teachers.destroy');
-
+    Route::delete('/teacher/delete/{id}', [AdminController::class, 'destroyTeachers'])->name('teachers.destroy');
 
     // Classes management
     Route::get('/classes', [AdminController::class, 'indexClasses'])->name('classes.index');
@@ -80,20 +78,22 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
     Route::put('/profile/update', [TeacherController::class, 'updateProfile'])->name('profile.update');
 
     // Student Grades/Reports
-    Route::get('/grades', [TeacherController::class, 'showGrades'])->name('grades.index');
+    Route::get('/teacher/grades', [TeacherController::class, 'gradesIndex'])->name('grades.index');
+    Route::get('/teacher/grades/class/{id}', [TeacherController::class, 'showClassGrades'])->name('grades.class');
 });
 
 // Student Routes
 Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')->group(function() {
+    
     Route::get('/dashboard', [StudentController::class, 'dashboard'])->name('dashboard');
 
     Route::post('/join-class', [StudentController::class, 'joinClass'])->name('join.class');
 
     Route::get('/exams', [StudentController::class, 'activeExams'])->name('exams.index');
-    Route::get('/student/exam/{id}/start', [StudentController::class, 'startExam'])->name('exams.start');
-    Route::post('/exams/{id}/submit', [StudentController::class, 'submitExam'])->name('exams.submit');
+    Route::get('/student/exams/{id}/start', [StudentController::class, 'startExam'])->name('exams.start');
+    Route::post('/student/exams/{id}/submit', [StudentController::class, 'submitExam'])->name('exams.submit');
 
-    Route::get('/exams/results', [StudentController::class,'indexResults'])->name('exams.results');
+    Route::get('/my-results', [StudentController::class, 'myResults'])->name('results.index');
 
     // Profile setting
     Route::get('/profile', [StudentController::class, 'profile'])->name('profile');
