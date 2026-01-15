@@ -6,11 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     @vite('resources/css/app.css')
-    <title>Document</title>
+    <title>Exam-System Login</title>
 </head>
 
 <body>
     <div class="min-h-screen bg-gray-100 flex flex-col justify-center py-12 px-6 lg:px-8">
+        <div style="">
+
+        </div>
         <div class="sm:mx-auto sm:w-full sm:max-w-md text-center">
             <h2 class="text-3xl font-extrabold text-gray-900">Sign in to your account</h2>
             <p class="mt-2 text-sm text-gray-600">
@@ -40,7 +43,7 @@
                         <div class="mt-1">
                             <input id="email" name="email" type="email" autocomplete="email" required
                                 class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                placeholder="you@example.com">
+                                placeholder="abc123@example.com">
                         </div>
                         @error('email')
                             <p class="mt-2 text-sm text-red-600" id="email-error">
@@ -95,11 +98,94 @@
                         </div>
                     </div>
 
-                    <div class="mt-6 grid grid-cols-1">
+                    <div class="mt-6 grid grid-cols-7 gap-3">
                         <button type="button"
-                            class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                            <span>Google</span>
+                            class="w-full inline-flex justify-center py-2 px-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <img src="icons/google.png" alt="Google" class="h-full w-full object-cover">
                         </button>
+                        <button type="button"
+                            class="w-full inline-flex justify-center py-2 px-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <img src="/icons/tik-tok.png" alt="Google" class="h-full w-full object-cover">
+                        </button>
+                        <button type="button"
+                            class="w-full inline-flex justify-center py-2 px-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <img src="icons/facebook.png" alt="Google" class="h-full w-full object-cover">
+                        </button>
+                        <button type="button"
+                            class="w-full inline-flex justify-center py-2 px-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <img src="icons/linkedin.png" alt="Google" class="h-full w-full object-cover">
+                        </button>
+                        <button type="button"
+                            class="w-full inline-flex justify-center py-2 px-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <img src="icons/twitter.png" alt="Google" class="h-full w-full object-cover">
+                        </button>
+                        <button type="button"
+                            class="w-full inline-flex justify-center py-2 px-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <img src="icons/reddit.png" alt="Google" class="h-full w-full object-cover">
+                        </button>
+                        <button type="button"
+                            class="w-full inline-flex justify-center py-2 px-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <img src="icons/threads.png" alt="Google" class="h-full w-full object-cover">
+                        </button>
+                        <button type="button"
+                            class="w-full inline-flex justify-center py-2 px-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <img src="icons/apple-logo.png" alt="Google" class="h-full w-full object-cover">
+                        </button>
+                        <button type="button"
+                            class="w-full inline-flex justify-center py-2 px-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <img src="icons/discord.png" alt="Google" class="h-full w-full object-cover">
+                        </button>
+                        <button type="button"
+                            class="w-full inline-flex justify-center py-2 px-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <img src="icons/github.png" alt="Google" class="h-full w-full object-cover">
+                        </button>
+                        <button type="button"
+                            class="w-full inline-flex justify-center py-2 px-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <img src="icons/gitlab.png" alt="Google" class="h-full w-full object-cover">
+                        </button>
+                        <button type="button"
+                            class="w-full inline-flex justify-center py-2 px-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <img src="icons/microsoft.png" alt="Google" class="h-full w-full object-cover">
+                        </button>
+                        <button type="button"
+                            class="w-full inline-flex justify-center py-2 px-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <img src="icons/social.png" alt="Google" class="h-full w-full object-cover">
+                        </button>
+                        <button type="button"
+                            class="w-full inline-flex justify-center py-2 px-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <img src="icons/line.png" alt="Google" class="h-full w-full object-cover">
+                        </button>
+                        <button type="button"
+                            class="w-full inline-flex justify-center py-2 px-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <img src="icons/wechat.png" alt="Google" class="h-full w-full object-cover">
+                        </button>
+                        <button type="button"
+                            class="w-full inline-flex justify-center py-2 px-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <img src="icons/amanzon.png" alt="Google" class="h-full w-full object-cover">
+                        </button>
+                        <button type="button"
+                            class="w-full inline-flex justify-center py-2 px-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <img src="icons/slack.png" alt="Google" class="h-full w-full object-cover">
+                        </button>
+                        <button type="button"
+                            class="w-full inline-flex justify-center py-2 px-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <img src="icons/twitch.png" alt="Google" class="h-full w-full object-cover">
+                        </button>
+                        <button type="button"
+                            class="w-full inline-flex justify-center py-2 px-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <img src="icons/kakao-talk.png" alt="Google" class="h-full w-full object-cover">
+                        </button>
+                        <button type="button"
+                            class="w-full inline-flex justify-center py-2 px-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <img src="icons/instagram.png" alt="Google" class="h-full w-full object-cover">
+                        </button>
+                        <button type="button"
+                            class="w-full inline-flex justify-center py-2 px-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <img src="icons/yahoo.png" alt="Google" class="h-full w-full object-cover">
+                        </button>
+                        
+                        
+
                     </div>
                 </div>
             </div>

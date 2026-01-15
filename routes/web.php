@@ -4,6 +4,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClassroomController;
 use App\Http\Controllers\ExamController;
+use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\TeacherController;
 use Illuminate\Support\Facades\Route;
@@ -44,7 +45,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::post('/classes', [AdminController::class, 'storeClasses'])->name('classes.store');
     Route::get('/classes/edit/{id}', [AdminController::class, 'editClasses'])->name('classes.edit');
     Route::patch('/classes/update/{id}', [AdminController::class, 'updateClasses'])->name('classes.update');
-    Route::delete('/classes/delelete/{id}', [AdminController::class, 'destroyClasses'])->name('classes.destroy');
+    Route::delete('/classes/delete/{id}', [AdminController::class, 'destroyClasses'])->name('classes.destroy');
 
     // Profile setting
     Route::get('/profile', [AdminController::class, 'profile'])->name('profile');
@@ -57,23 +58,45 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
     // Dashboard page
     Route::get('/dashboard', [TeacherController::class, 'dashboard'])->name('dashboard');
 
-    // Classrooms
-    Route::get('/classes', [ClassroomController::class, 'index'])->name('classes.index');
-    Route::get('/classes/{id}', [ClassroomController::class, 'show'])->name('classes.show');
+    // Classrooms management
+    Route::get('/classes', [TeacherController::class, 'indexClasses'])->name('classes.index');
+    Route::get('/classes/{id}', [ClassroomController::class, 'showManageClass'])->name('classes.show');
 
-    // Exams
+    // Exams management
     Route::resource('exams', ExamController::class);
+    Route::get('/exams/create', [ExamController::class, 'createExams'])->name('exams.create');
+    Route::post('/exams/store', [ExamController::class, 'storeExams'])->name('exams.store');
+    Route::get('/exams/edit/{id}', [ExamController::class, 'editExams'])->name('exams.edit');
+    Route::patch('/exams/update/{id}', [ExamController::class, 'updateExams'])->name('exams.update');
+    Route::delete('/exams/delete/{id}', [ExamController::class, 'destroyExams'])->name('exams.destroy');
+
+
+    // Questions management
+    Route::get('/exam/{exam}/questions/create', [QuestionController::class, 'createQuestions'])->name('exams.questions.create');
+    Route::post('/exams/{exam}/questions/store', [QuestionController::class, 'storeQuestions'])->name('exam.questions.store');
 
     // Profile Settings
     Route::get('/profile', [TeacherController::class, 'profile'])->name('profile');
     Route::put('/profile/update', [TeacherController::class, 'updateProfile'])->name('profile.update');
 
     // Student Grades/Reports
-    Route::get('/grades', [TeacherController::class, 'grades'])->name('grades.index');
+    Route::get('/grades', [TeacherController::class, 'showGrades'])->name('grades.index');
 });
 
 // Student Routes
 Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')->group(function() {
     Route::get('/dashboard', [StudentController::class, 'dashboard'])->name('dashboard');
+
+    Route::post('/join-class', [StudentController::class, 'joinClass'])->name('join.class');
+
+    Route::get('/exams', [StudentController::class, 'activeExams'])->name('exams.index');
+    Route::get('/student/exam/{id}/start', [StudentController::class, 'startExam'])->name('exams.start');
+    Route::post('/exams/{id}/submit', [StudentController::class, 'submitExam'])->name('exams.submit');
+
+    Route::get('/exams/results', [StudentController::class,'indexResults'])->name('exams.results');
+
+    // Profile setting
+    Route::get('/profile', [StudentController::class, 'profile'])->name('profile');
+    Route::put('/profile/update', [StudentController::class, 'updateProfile'])->name('profile.update');
 });
 

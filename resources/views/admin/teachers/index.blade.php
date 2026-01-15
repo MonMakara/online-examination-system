@@ -40,7 +40,7 @@
                 </div>
             @endif
         </div>
-        <div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="mb-6 flex flex-col items-center md:flex-row md:items-center justify-between gap-4">
 
             <div class="relative w-full md:w-96">
                 <form action="{{ route('admin.teachers.index') }}" method="GET" class="relative w-full md:w-96">

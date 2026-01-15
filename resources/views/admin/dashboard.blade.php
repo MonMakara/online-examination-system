@@ -9,7 +9,7 @@
                 <p class="text-3xl font-bold text-indigo-600 mt-2">{{ $teachers->count() ?? 0 }}</p>
             </div>
             <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-                <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Classrooms</p>
+                <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Classes</p>
                 <p class="text-3xl font-bold text-indigo-600 mt-2">{{ $classes->count() ?? 0 }}</p>
             </div>
             <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">

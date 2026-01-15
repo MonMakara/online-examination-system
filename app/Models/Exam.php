@@ -15,7 +15,7 @@ class Exam extends Model
         return $this->belongsTo(ClassRoom::class, 'class_id');
     }
 
-    public function qestions() {
+    public function questions() {
         return $this->hasMany(Question::class);
     }
 
