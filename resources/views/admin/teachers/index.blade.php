@@ -2,7 +2,7 @@
 @section('title', 'Teachers Management')
 
 @section('content')
-    <div class="px-8 py-2">
+    <div class="px-4 lg:px-8 py-2">
         {{-- Flash Messages (Keep your existing script for auto-hide) --}}
         <div class="space-y-4 mb-6">
             @if (session('success'))

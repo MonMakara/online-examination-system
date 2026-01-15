@@ -16,20 +16,27 @@ class Exam extends Model
         'closed_at' => 'datetime',
     ];
 
-    public function isOpen() {
-        if (!$this->closed_at) return true;
+    public function isOpen()
+    {
+        if (! $this->closed_at) {
+            return true;
+        }
+
         return now()->lt($this->closed_at);
     }
 
-    public function classRoom() {
+    public function classRoom()
+    {
         return $this->belongsTo(ClassRoom::class, 'class_id');
     }
 
-    public function questions() {
+    public function questions()
+    {
         return $this->hasMany(Question::class);
     }
 
-    public function results() {
+    public function results()
+    {
         return $this->hasMany(Result::class);
     }
 }

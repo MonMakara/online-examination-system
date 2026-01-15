@@ -26,19 +26,23 @@ class User extends Authenticatable
         'profile_image',
     ];
 
-    public function managedClasses() {
+    public function managedClasses()
+    {
         return $this->hasMany(ClassRoom::class, 'teacher_id');
     }
 
-    public function enrolledClasses() {
+    public function enrolledClasses()
+    {
         return $this->belongsToMany(ClassRoom::class, 'class_student', 'student_id', 'class_id');
     }
 
-    public function answers() {
+    public function answers()
+    {
         return $this->hasMany(StudentAnswer::class);
     }
 
-    public function results() {
+    public function results()
+    {
         return $this->hasMany(Result::class);
     }
 

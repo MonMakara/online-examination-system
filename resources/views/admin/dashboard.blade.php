@@ -2,7 +2,7 @@
 @section('title', 'Dashboard')
 
 @section('content')
-    <div class="p-8 space-y-8">
+    <div class="space-y-6">
         {{-- Stats Section --}}
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             @php

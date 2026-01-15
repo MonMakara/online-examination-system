@@ -3,13 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\ClassRoom;
-use Illuminate\Http\Request;
 
 class ClassroomController extends Controller
 {
-    // Show page class 
+    // Show page class
 
-    public function showManageClass($id) {
+    public function showManageClass($id)
+    {
         $class = ClassRoom::where('teacher_id', auth()->id())->findOrFail($id);
 
         $students = $class->students()->orderBy('name')->get();
@@ -18,5 +18,4 @@ class ClassroomController extends Controller
 
         return view('teacher.classes.show', compact('class', 'students', 'exams'));
     }
-
 }

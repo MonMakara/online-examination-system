@@ -10,11 +10,11 @@ use App\Http\Controllers\TeacherController;
 use Illuminate\Support\Facades\Route;
 
 // Root to login when opening system
-Route::get('/', fn() => redirect()->route('show-login'));
+Route::get('/', fn () => redirect()->route('show-login'));
 
 // Auth Routes
-Route::controller(AuthController::class)->group(function() {
-    
+Route::controller(AuthController::class)->group(function () {
+
     Route::get('/login', 'showLogin')->name('show-login');
     Route::get('/register', 'showRegister')->name('show-register');
 
@@ -24,7 +24,7 @@ Route::controller(AuthController::class)->group(function() {
 });
 
 // Admin Routes
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function() {
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
 
     // Dashboard page
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
@@ -51,7 +51,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 });
 
 // Teacher Routes
-Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')->group(function() {
+Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')->group(function () {
 
     // Dashboard page
     Route::get('/dashboard', [TeacherController::class, 'dashboard'])->name('dashboard');
@@ -68,7 +68,6 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
     Route::patch('/exams/update/{id}', [ExamController::class, 'updateExams'])->name('exams.update');
     Route::delete('/exams/delete/{id}', [ExamController::class, 'destroyExams'])->name('exams.destroy');
 
-
     // Questions management
     Route::get('/exam/{exam}/questions/create', [QuestionController::class, 'createQuestions'])->name('exams.questions.create');
     Route::post('/exams/{exam}/questions/store', [QuestionController::class, 'storeQuestions'])->name('exam.questions.store');
@@ -83,8 +82,8 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
 });
 
 // Student Routes
-Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')->group(function() {
-    
+Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')->group(function () {
+
     Route::get('/dashboard', [StudentController::class, 'dashboard'])->name('dashboard');
 
     Route::post('/join-class', [StudentController::class, 'joinClass'])->name('join.class');
@@ -99,4 +98,3 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
     Route::get('/profile', [StudentController::class, 'profile'])->name('profile');
     Route::put('/profile/update', [StudentController::class, 'updateProfile'])->name('profile.update');
 });
-

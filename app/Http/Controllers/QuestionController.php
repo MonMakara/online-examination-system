@@ -8,17 +8,18 @@ use Illuminate\Http\Request;
 
 class QuestionController extends Controller
 {
-    // Show form to create question 
-    public function createQuestions($examId) {
+    // Show form to create question
+    public function createQuestions($examId)
+    {
 
         $exam = Exam::withCount('questions')->findOrFail($examId);
 
         return view('teacher.exams.question', compact('exam'));
     }
 
-
     // Store questions
-    public function storeQuestions(Request $request, $examId) {
+    public function storeQuestions(Request $request, $examId)
+    {
 
         $request->validate([
             'question' => ['required', 'string'],
@@ -29,7 +30,7 @@ class QuestionController extends Controller
             'correct_option' => ['required', 'string', 'in:a,b,c,d'],
         ]);
 
-        $questions = new Question();
+        $questions = new Question;
 
         $questions->exam_id = $examId;
         $questions->question = $request->question;
@@ -43,7 +44,4 @@ class QuestionController extends Controller
 
         return redirect()->back()->with('success', 'Question added successfully!');
     }
-
-
-
 }

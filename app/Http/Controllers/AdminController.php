@@ -6,10 +6,8 @@ use App\Models\ClassRoom;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-
 
 class AdminController extends Controller
 {
@@ -77,6 +75,7 @@ class AdminController extends Controller
     {
 
         $teacher = User::where('role', 'teacher')->findOrFail($id);
+
         return view('admin.teachers.edit', compact('teacher'));
     }
 
@@ -88,7 +87,7 @@ class AdminController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $id,
+            'email' => 'required|email|unique:users,email,'.$id,
         ]);
 
         $teacher->update([
@@ -112,8 +111,6 @@ class AdminController extends Controller
         return redirect()->route('admin.teachers.index')->with('warning', 'Teacher has been removed from the system.');
     }
 
-
-
     /* Classes management */
 
     // Show classes page
@@ -123,7 +120,7 @@ class AdminController extends Controller
         $query = ClassRoom::with('teacher')->withCount('students');
 
         if ($request->filled('search')) {
-            $query->where('name', 'like', '%' . $request->search . '%');
+            $query->where('name', 'like', '%'.$request->search.'%');
         }
 
         // withQueryString() keeps the ?search=... in the pagination links
@@ -180,7 +177,8 @@ class AdminController extends Controller
     }
 
     // Update class
-    public function updateClasses(Request $request, $id) {
+    public function updateClasses(Request $request, $id)
+    {
         $class = ClassRoom::findOrFail($id);
 
         // 1. Updated Validation
@@ -233,16 +231,14 @@ class AdminController extends Controller
     {
         $user = auth()->user();
 
-
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $user->id,
+            'email' => 'required|email|unique:users,email,'.$user->id,
             'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
 
             'current_password' => 'nullable|required_with:new_password',
             'new_password' => ['nullable', 'confirmed', 'min:6'],
         ]);
-
 
         if ($request->hasFile('profile_image')) {
 
@@ -255,7 +251,7 @@ class AdminController extends Controller
         }
 
         if ($request->filled('new_password')) {
-            if (!Hash::check($request->current_password, $user->password)) {
+            if (! Hash::check($request->current_password, $user->password)) {
                 return back()->withErrors(['current_password' => 'Your current password does not match our records.']);
             }
 

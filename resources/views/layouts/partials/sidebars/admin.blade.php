@@ -1,4 +1,4 @@
-<aside class="w-64 bg-white border-r border-gray-200 hidden md:flex flex-col h-screen sticky top-0">
+<aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'" class="fixed inset-y-0 left-0 z-30 w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 lg:translate-x-0 lg:static lg:flex lg:flex-col lg:h-screen lg:sticky lg:top-0">
     <div class="p-6">
         <a href="{{ route('admin.dashboard') }}" class="text-2xl font-black text-indigo-600 tracking-tighter">
             Exam<span class="text-gray-900">System</span>

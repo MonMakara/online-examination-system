@@ -11,15 +11,18 @@ class StudentAnswer extends Model
 
     protected $fillable = ['user_id', 'exam_id', 'question_id', 'selected_option'];
 
-    public function student() {
+    public function student()
+    {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function exam() {
+    public function exam()
+    {
         return $this->belongsTo(Exam::class);
     }
 
-    public function question() {
+    public function question()
+    {
         return $this->belongsTo(Question::class);
     }
 }

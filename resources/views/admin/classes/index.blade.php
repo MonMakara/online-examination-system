@@ -2,8 +2,10 @@
 @section('title', 'Classes management')
 
 @section('content')
-    <div class="px-8 py-2">
+    <div>
+        {{-- ... alerts ... --}}
         <div class="space-y-4 mb-6">
+            {{-- Keeping alerts as is, simplified here --}}
             @if (session('success'))
                 <div class="flex items-center p-4 bg-green-50 border-l-4 border-green-500 text-green-700 rounded-r-lg shadow-sm"
                     role="alert">
@@ -40,9 +42,10 @@
                 </div>
             @endif
         </div>
-        <div class="mb-6 flex justify-between items-end">
-            <div class="relative w-72">
-                <form action="{{ route('admin.classes.index') }}" method="GET" class="relative w-72">
+
+        <div class="mb-6 flex flex-col md:flex-row justify-between md:items-end gap-4">
+            <div class="relative w-full md:w-72">
+                <form action="{{ route('admin.classes.index') }}" method="GET" class="relative w-full">
                     <input type="text" name="search" value="{{ request('search') }}"
                         placeholder="Search class by name..."
                         class="w-full pl-10 {{ request('search') ? 'pr-10' : 'pr-4' }} py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-sm">

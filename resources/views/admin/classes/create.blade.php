@@ -15,13 +15,13 @@
     </div>
 
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <div class="px-8 py-6 border-b border-gray-100 bg-gray-50/50">
+        <div class="px-4 py-4 lg:px-8 lg:py-6 border-b border-gray-100 bg-gray-50/50">
             <h2 class="text-xl font-bold text-gray-800">Class Details</h2>
             <p class="text-sm text-gray-500">Setup a new classroom and assign a lead teacher.</p>
         </div>
 
         {{-- IMPORTANT: Added enctype="multipart/form-data" --}}
-        <form action="{{route('admin.classes.store')}}" method="POST" enctype="multipart/form-data" class="p-8 space-y-6">
+        <form action="{{route('admin.classes.store')}}" method="POST" enctype="multipart/form-data" class="p-4 lg:p-8 space-y-6">
             @csrf
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">

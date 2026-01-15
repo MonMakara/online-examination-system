@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Storage;
 
 class StudentController extends Controller
 {
-    //Dashboard
+    // Dashboard
     public function dashboard()
     {
         $student = Auth::user();
@@ -58,7 +58,7 @@ class StudentController extends Controller
         // 3. Attach the student to the class
         $class->students()->attach($user->id);
 
-        return redirect()->route('student.dashboard')->with('success', 'Successfully joined ' . $class->name . '!');
+        return redirect()->route('student.dashboard')->with('success', 'Successfully joined '.$class->name.'!');
     }
 
     public function profile()
@@ -72,7 +72,7 @@ class StudentController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'email' => 'required|string|email|max:255|unique:users,email,'.$user->id,
             'profile_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'current_password' => 'nullable|required_with:new_password',
             'new_password' => 'nullable|min:8|confirmed',
@@ -90,7 +90,7 @@ class StudentController extends Controller
         if ($request->hasFile('profile_image')) {
             // Delete old image if it exists
             if ($user->profile_image) {
-                Storage::delete('public/' . $user->profile_image);
+                Storage::delete('public/'.$user->profile_image);
             }
             $path = $request->file('profile_image')->store('student_profiles', 'public');
             $user->profile_image = $path;
@@ -202,7 +202,7 @@ class StudentController extends Controller
         }
 
         return redirect()->route('student.exams.index')
-            ->with('success', 'Exam submitted successfully! Score: ' . round($finalScore) . '%');
+            ->with('success', 'Exam submitted successfully! Score: '.round($finalScore).'%');
     }
 
     public function myResults()

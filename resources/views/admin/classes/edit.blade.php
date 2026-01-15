@@ -14,7 +14,7 @@
     </div>
 
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <div class="px-8 py-6 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center">
+        <div class="px-4 py-4 lg:px-8 lg:py-6 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center">
             <div>
                 <h2 class="text-xl font-bold text-gray-800">Edit Class: {{ $class->name }}</h2>
                 <p class="text-sm text-gray-500">Update classroom details and management.</p>
@@ -26,7 +26,7 @@
         </div>
 
         {{-- Added enctype for file support --}}
-        <form action="{{ route('admin.classes.update', $class->id) }}" method="POST" enctype="multipart/form-data" class="p-8 space-y-8">
+        <form action="{{ route('admin.classes.update', $class->id) }}" method="POST" enctype="multipart/form-data" class="p-4 lg:p-8 space-y-8">
             @csrf
             @method('PATCH')
 

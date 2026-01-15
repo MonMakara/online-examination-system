@@ -6,44 +6,47 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 
 class AuthController extends Controller
 {
     // Show Register
-    public function showRegister() {
+    public function showRegister()
+    {
         return view('auth.register');
     }
 
     // Register
-    public function register(Request $request) {
+    public function register(Request $request)
+    {
 
-            $request->validate([
-                'name' => ['required', 'string', 'max:255'],
-                'email' => ['required', 'email', 'unique:users,email'],
-                'password' => ['required', 'min:5', 'confirmed'],
-            ]);
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'unique:users,email'],
+            'password' => ['required', 'min:5', 'confirmed'],
+        ]);
 
-            $user = new User();
+        $user = new User;
 
-            $user->name = request('name');
-            $user->email = request('email');
-            $user->password = Hash::make(request('password'));
-            $user->role = 'student';
+        $user->name = request('name');
+        $user->email = request('email');
+        $user->password = Hash::make(request('password'));
+        $user->role = 'student';
 
-            $user->save();
+        $user->save();
 
-            return redirect()->route('show-login')->with('success', 'Account created successfully');
+        return redirect()->route('show-login')->with('success', 'Account created successfully');
     }
 
     // Show Login
-    public function showLogin() {
+    public function showLogin()
+    {
         return view('auth.login');
     }
 
     // Login
 
-    public function login(Request $request) {
+    public function login(Request $request)
+    {
         $credentials = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required'],
@@ -66,14 +69,13 @@ class AuthController extends Controller
     }
 
     // Logout
-    public function logout(Request $request) {
+    public function logout(Request $request)
+    {
         Auth::logout();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
         return redirect()->route('login');
-    }   
-
-
+    }
 }

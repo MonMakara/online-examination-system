@@ -35,19 +35,19 @@ class ExamController extends Controller
     public function storeExams(Request $request)
     {
         $request->validate([
-            'title'     => ['required', 'string', 'max:255'],
-            'class_id'  => ['required', 'exists:class_rooms,id'],
-            'duration'  => ['required', 'integer', 'min:1'],
-            'due_at'    => ['nullable', 'date'],
+            'title' => ['required', 'string', 'max:255'],
+            'class_id' => ['required', 'exists:class_rooms,id'],
+            'duration' => ['required', 'integer', 'min:1'],
+            'due_at' => ['nullable', 'date'],
             'closed_at' => ['nullable', 'date', 'after_or_equal:due_at'],
         ]);
 
-        $exam = new Exam();
-        $exam->title      = $request->title;
-        $exam->class_id   = $request->class_id;
-        $exam->duration   = $request->duration;
-        $exam->due_at     = $request->due_at;
-        $exam->closed_at  = $request->closed_at;
+        $exam = new Exam;
+        $exam->title = $request->title;
+        $exam->class_id = $request->class_id;
+        $exam->duration = $request->duration;
+        $exam->due_at = $request->due_at;
+        $exam->closed_at = $request->closed_at;
         $exam->teacher_id = auth()->id();
         $exam->save();
 
@@ -65,14 +65,15 @@ class ExamController extends Controller
     }
 
     // Update exam
-    public function updateExams(Request $request, $id) {
+    public function updateExams(Request $request, $id)
+    {
         $exam = Exam::where('teacher_id', auth()->id())->findOrFail($id);
 
         $validated = $request->validate([
-            'title'     => 'required|string|max:255',
-            'class_id'  => 'required|exists:class_rooms,id',
-            'duration'  => 'required|integer|min:1',
-            'due_at'    => 'nullable|date',
+            'title' => 'required|string|max:255',
+            'class_id' => 'required|exists:class_rooms,id',
+            'duration' => 'required|integer|min:1',
+            'due_at' => 'nullable|date',
             'closed_at' => 'nullable|date|after_or_equal:due_at',
         ]);
 
