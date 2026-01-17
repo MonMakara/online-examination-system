@@ -3,7 +3,7 @@
 @section('title', 'My Exam Results')
 
 @section('content')
-<div class="container mx-auto px-6 py-8">
+<div class="container mx-auto px-4 lg:px-8 py-8">
     <div class="mb-8 border-b border-gray-200 pb-4">
         <h1 class="text-2xl font-bold text-gray-800">Performance History</h1>
         <p class="text-sm text-gray-500 mt-1">Review your scores and submission details from completed assessments.</p>

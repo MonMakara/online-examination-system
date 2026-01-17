@@ -2,17 +2,31 @@
 @section('title', 'Dashboard')
 
 @section('content')
-    <div class="space-y-6">
+    <div class="space-y-6 px-4 lg:px-8">
         {{-- Stats Section --}}
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             @php
                 $statCards = [
-                    ['label' => 'Teachers', 'count' => $teachers->count(), 'icon' => 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197'],
-                    ['label' => 'Classes', 'count' => $classes->count(), 'icon' => 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4'],
-                    ['label' => 'Students', 'count' => $studentCount ?? 0, 'icon' => 'M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222']
+                    [
+                        'label' => 'Teachers',
+                        'count' => $teachers->count(),
+                        'icon' => 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197',
+                    ],
+                    [
+                        'label' => 'Classes',
+                        'count' => $classes->count(),
+                        'icon' =>
+                            'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4',
+                    ],
+                    [
+                        'label' => 'Students',
+                        'count' => $studentCount ?? 0,
+                        'icon' =>
+                            'M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222',
+                    ],
                 ];
             @endphp
-            @foreach($statCards as $card)
+            @foreach ($statCards as $card)
                 <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between">
                     <div>
                         <p class="text-xs font-black text-gray-400 uppercase tracking-widest">{{ $card['label'] }}</p>
@@ -33,9 +47,10 @@
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 sticky top-8">
                     <h2 class="text-lg font-bold text-gray-900 mb-1">Quick Create Class</h2>
                     <p class="text-xs text-gray-500 mb-6">Instantly setup a new classroom.</p>
-                    
+
                     {{-- Added enctype for file support --}}
-                    <form action="{{ route('admin.classes.store') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+                    <form action="{{ route('admin.classes.store') }}" method="POST" enctype="multipart/form-data"
+                        class="space-y-4">
                         @csrf
                         <div>
                             <label class="block text-[11px] font-bold text-gray-500 uppercase mb-1">Class Name</label>
@@ -79,9 +94,15 @@
                         <table class="min-w-full divide-y divide-gray-100">
                             <thead class="bg-gray-50/50">
                                 <tr>
-                                    <th class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Classroom Info</th>
-                                    <th class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Assigned Teacher</th>
-                                    <th class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Join Code</th>
+                                    <th
+                                        class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                        Classroom Info</th>
+                                    <th
+                                        class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                        Assigned Teacher</th>
+                                    <th
+                                        class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">
+                                        Join Code</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-100">
@@ -90,29 +111,42 @@
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="flex items-center">
                                                 {{-- Logo/Avatar --}}
-                                                <div class="h-10 w-10 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center overflow-hidden flex-shrink-0">
-                                                    @if($class->logo)
-                                                        <img src="{{ asset('storage/' . $class->logo) }}" class="h-full w-full object-cover">
+                                                <div
+                                                    class="h-10 w-10 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center overflow-hidden flex-shrink-0 shadow-sm">
+                                                    @if ($class->logo && file_exists(public_path('storage/' . $class->logo)))
+                                                        <img src="{{ asset('storage/' . $class->logo) }}"
+                                                            alt="{{ $class->name }}" class="h-full w-full object-cover">
                                                     @else
-                                                        <span class="text-indigo-600 font-bold text-sm">{{ substr($class->name, 0, 1) }}</span>
+                                                        {{-- Professional Fallback: Blue Background with White Initial --}}
+                                                        <div
+                                                            class="h-full w-full flex items-center justify-center bg-blue-600">
+                                                            <span class="text-white font-bold text-sm uppercase">
+                                                                {{ substr($class->name, 0, 1) }}
+                                                            </span>
+                                                        </div>
                                                     @endif
                                                 </div>
                                                 <div class="ml-4">
-                                                    <p class="text-sm font-bold text-gray-900 leading-tight">{{ $class->name }}</p>
-                                                    <p class="text-[10px] text-gray-400 font-medium">Class ID: #{{ $class->id }}</p>
+                                                    <p class="text-sm font-bold text-gray-900 leading-tight">
+                                                        {{ $class->name }}</p>
+                                                    <p class="text-[10px] text-gray-400 font-medium">Class ID:
+                                                        #{{ $class->id }}</p>
                                                 </div>
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="flex items-center">
-                                                <div class="h-6 w-6 rounded-full bg-gray-100 flex items-center justify-center text-[10px] text-gray-500 font-bold mr-2">
+                                                <div
+                                                    class="h-6 w-6 rounded-full bg-gray-100 flex items-center justify-center text-[10px] text-gray-500 font-bold mr-2">
                                                     {{ substr($class->teacher->name ?? '?', 0, 1) }}
                                                 </div>
-                                                <span class="text-sm text-gray-600 font-medium">{{ $class->teacher->name ?? 'No teacher' }}</span>
+                                                <span
+                                                    class="text-sm text-gray-600 font-medium">{{ $class->teacher->name ?? 'No teacher' }}</span>
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-center">
-                                            <span class="font-mono text-xs font-bold bg-indigo-50 text-indigo-700 px-3 py-1 rounded-lg border border-indigo-100">
+                                            <span
+                                                class="font-mono text-xs font-bold bg-indigo-50 text-indigo-700 px-3 py-1 rounded-lg border border-indigo-100">
                                                 {{ $class->code }}
                                             </span>
                                         </td>

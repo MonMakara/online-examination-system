@@ -2,7 +2,7 @@
 @section('title', 'Classes management')
 
 @section('content')
-    <div>
+    <div class="px-4 lg:px-8">
         {{-- ... alerts ... --}}
         <div class="space-y-4 mb-6">
             {{-- Keeping alerts as is, simplified here --}}

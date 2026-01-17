@@ -22,7 +22,7 @@
             Sorry, you don't have the permission to access this page. Please contact your instructor if you think this is a mistake.
         </p>
 
-        <a href="{{ route('student.dashboard') }}" class="inline-flex items-center text-blue-600 font-bold hover:underline">
+        <a href="{{ route('show-login') }}" class="inline-flex items-center text-blue-600 font-bold hover:underline">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
             Return to Dashboard
         </a>

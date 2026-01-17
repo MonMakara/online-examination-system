@@ -3,7 +3,7 @@
 @section('title', 'Teacher Profile')
 
 @section('content')
-    <div class="mb-6 px-8">
+    <div class="mb-6 px-4 lg:px-8">
         <a href="{{ route('teacher.dashboard') }}"
             class="inline-flex items-center text-sm font-semibold text-indigo-600 hover:text-indigo-800 transition-colors group">
             <svg class="w-5 h-5 mr-1 transform group-hover:-translate-x-1 transition-transform" fill="none"
@@ -14,7 +14,7 @@
         </a>
     </div>
 
-    <div class="max-w-4xl mx-auto">
+    <div class="max-w-4xl mx-auto px-4 lg:px-8">
         <div class="space-y-4 mb-6">
             @if (session('success'))
                 <div class="flex items-center p-4 bg-green-50 border-l-4 border-green-500 text-green-700 rounded-r-lg shadow-sm" role="alert">

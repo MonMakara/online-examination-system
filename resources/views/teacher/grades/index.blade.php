@@ -3,7 +3,7 @@
 @section('title', 'Student Grades')
 
 @section('content')
-    <div class="mb-6 px-8">
+    <div class="mb-6 px-4 lg:px-8">
         <a href="{{ route('teacher.grades.index') }}"
             class="inline-flex items-center text-xs font-black uppercase tracking-widest text-indigo-600 hover:text-indigo-800 transition-colors group">
             <svg class="w-4 h-4 mr-2 transform group-hover:-translate-x-1 transition-transform" fill="none"
@@ -14,7 +14,7 @@
         </a>
     </div>
 
-    <div class="space-y-6 px-8">
+    <div class="space-y-6 px-4 lg:px-8">
         {{-- Header Section --}}
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>

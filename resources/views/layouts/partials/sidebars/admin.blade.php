@@ -33,7 +33,7 @@
 
     {{-- Bottom User Profile Section --}}
     <div class="p-4 border-t border-gray-100">
-        <div class="flex items-center p-2 mb-4 rounded-xl bg-gray-50 border border-gray-100">
+        <a href="{{ route('admin.profile') }}" class="flex items-center p-2 mb-4 rounded-lg hover:bg-gray-50 transition-colors">
             <div class="h-9 w-9 rounded-full bg-white border border-gray-200 flex items-center justify-center text-indigo-700 font-black mr-3 overflow-hidden shadow-sm shrink-0">
                 @if (auth()->user()->profile_image)
                     <img src="{{ asset('storage/' . auth()->user()->profile_image) }}" class="h-full w-full object-cover">
@@ -45,7 +45,8 @@
                 <p class="text-xs font-black text-gray-900 truncate">{{ auth()->user()->name }}</p>
                 <p class="text-[10px] text-gray-400 font-bold uppercase tracking-tighter truncate">ID: #{{ auth()->id() }}</p>
             </div>
-        </div>
+        </a>
+    
 
         <form action="{{ route('logout') }}" method="POST">
             @csrf

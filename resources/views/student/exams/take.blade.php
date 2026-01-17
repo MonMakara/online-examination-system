@@ -3,7 +3,10 @@
 @section('title', $exam->title)
 
 @section('content')
-<div class="container mx-auto px-6 py-8 pb-24" x-data="examTimer({{ $exam->duration * 60 }}, '{{ $exam->closed_at }}')">
+{{-- Added exam ID and the formatted closedAt string to the x-data --}}
+<div class="container mx-auto px-4 lg:px-8 py-8 pb-24" 
+     x-data="examTimer({{ $exam->duration * 60 }}, '{{ $examClosedAt }}', '{{ $examDueAt }}', {{ $exam->id }})">
+    
     {{-- Sticky Header --}}
     <div class="sticky top-20 z-20 bg-white shadow-md border border-gray-200 rounded-xl p-5 mb-8 flex justify-between items-center">
         <div class="flex items-center space-x-4">
@@ -14,7 +17,8 @@
             </div>
             <div>
                 <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none mb-1">Time Remaining</p>
-                <p class="text-2xl font-bold text-blue-600 leading-none" x-text="formatTime()"></p>
+                {{-- Updated to use text property --}}
+                <p class="text-2xl font-bold text-blue-600 leading-none" x-text="timerDisplay"></p>
             </div>
         </div>
 
@@ -68,53 +72,89 @@
     </form>
 </div>
 
-
-
 <script>
-function examTimer(durationInSeconds, closedAtString) {
+function examTimer(durationInSeconds, closedAtString, dueAtString, examId) {
     return {
-        secondsLeft: durationInSeconds,
-        hardDeadline: closedAtString ? new Date(closedAtString).getTime() : null,
-        
+        timerDisplay: '00:00',
+        endTime: null,
+        interval: null,
+
         init() {
-            let timer = setInterval(() => {
-                // 1. Standard duration countdown
-                this.secondsLeft--;
+            const storageKey = 'exam_end_' + examId;
+            const now = Date.now();
 
-                // 2. Hard Deadline Check (If closed_at is reached before duration ends)
-                if (this.hardDeadline) {
-                    const now = new Date().getTime();
-                    const diffToHardClose = Math.floor((this.hardDeadline - now) / 1000);
-                    
-                    // If hard close is sooner than duration, follow hard close
-                    if (diffToHardClose < this.secondsLeft) {
-                        this.secondsLeft = diffToHardClose;
-                    }
-                }
+            // Base duration
+            let calculatedEndTime = now + (durationInSeconds * 1000);
 
-                // 3. Auto-Submit
-                if (this.secondsLeft <= 0) {
-                    this.secondsLeft = 0;
-                    clearInterval(timer);
-                    alert('Time has expired! Your exam will be submitted automatically.');
-                    document.getElementById('examForm').submit();
+            // Hard close (absolute stop)
+            if (closedAtString) {
+                const closedTime = Date.parse(closedAtString);
+                if (!isNaN(closedTime)) {
+                    calculatedEndTime = Math.min(calculatedEndTime, closedTime);
                 }
-            }, 1000);
+            }
+
+            // Due date (soft stop)
+            if (dueAtString) {
+                const dueTime = Date.parse(dueAtString);
+                if (!isNaN(dueTime)) {
+                    calculatedEndTime = Math.min(calculatedEndTime, dueTime);
+                }
+            }
+
+            // localStorage safety
+            const savedEndTime = parseInt(localStorage.getItem(storageKey));
+            if (savedEndTime && savedEndTime < calculatedEndTime) {
+                this.endTime = savedEndTime;
+            } else {
+                this.endTime = calculatedEndTime;
+                localStorage.setItem(storageKey, this.endTime);
+            }
+
+            this.tick();
+            this.interval = setInterval(() => this.tick(), 1000);
         },
 
-        formatTime() {
-            if (this.secondsLeft <= 0) return "00:00";
-            const mins = Math.floor(this.secondsLeft / 60);
-            const secs = this.secondsLeft % 60;
-            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        tick() {
+            const distance = this.endTime - Date.now();
+
+            if (distance <= 0) {
+                this.timerDisplay = "00:00";
+                clearInterval(this.interval);
+
+                const form = document.getElementById('examForm');
+                if (form && form.dataset.submitting !== 'true') {
+                    alert('Time is up! Exam submitted automatically.');
+                    this.submitForm();
+                }
+                return;
+            }
+
+            const minutes = Math.floor(distance / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            this.timerDisplay =
+                minutes.toString().padStart(2, '0') + ':' +
+                seconds.toString().padStart(2, '0');
         },
 
         confirmSubmit() {
-            if(confirm('Are you sure you want to submit your answers? You cannot change them after this.')) {
-                document.getElementById('examForm').submit();
+            if (confirm('Submit now? You cannot change answers later.')) {
+                this.submitForm();
             }
+        },
+
+        submitForm() {
+            const form = document.getElementById('examForm');
+            if (!form) return;
+
+            form.dataset.submitting = 'true';
+            localStorage.removeItem('exam_end_' + examId);
+            form.submit();
         }
     }
 }
 </script>
+
+
 @endsection

@@ -3,7 +3,7 @@
 @section('title', 'Teacher Dashboard')
 
 @section('content')
-    <div class="space-y-6">
+    <div class="space-y-6 px-4 lg:px-8">
         {{-- Stats Cards --}}
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">

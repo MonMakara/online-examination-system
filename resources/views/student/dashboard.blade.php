@@ -3,7 +3,7 @@
 @section('title', 'Student Dashboard')
 
 @section('content')
-<div class="space-y-6">
+<div class="space-y-6 px-4 lg:px-8">
     
     {{-- Standard Notification Bar --}}
     @if (session('success') || session('warning'))
