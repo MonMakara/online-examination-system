@@ -94,13 +94,8 @@ function examTimer(durationInSeconds, closedAtString, dueAtString, examId) {
                 }
             }
 
-            // Due date (soft stop)
-            if (dueAtString) {
-                const dueTime = Date.parse(dueAtString);
-                if (!isNaN(dueTime)) {
-                    calculatedEndTime = Math.min(calculatedEndTime, dueTime);
-                }
-            }
+            // Note: we do NOT force stop at due_at anymore, because the backend supports Late submissions.
+            // Students can continue until closed_at or duration expires.
 
             // localStorage safety
             const savedEndTime = parseInt(localStorage.getItem(storageKey));

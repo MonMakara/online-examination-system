@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use PHPUnit\Metadata\After;
 
 return new class extends Migration
 {
@@ -12,9 +13,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('otp')->nullable();
-            $table->timestamp('otp_expires_at')->nullable();
-            $table->boolean('email_verified')->default(false);
+            $table->string('google_id')->nullable()->after('id');
+            $table->string('password')->nullable()->change();
         });
     }
 
@@ -24,7 +24,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['opt', 'opt_expires_at', 'email_verfied']);
+            $table->dropColumn('google_id');
         });
     }
 };

@@ -8,15 +8,32 @@ use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\TeacherController;
 use Illuminate\Support\Facades\Route;
+use Laravel\Socialite\Facades\Socialite;
 
 // Root to login when opening system
-Route::get('/', fn () => redirect()->route('show-login'));
+Route::get('/', fn() => redirect()->route('show-login'));
 
 // Auth Routes
 Route::controller(AuthController::class)->group(function () {
 
     Route::get('/login', 'showLogin')->name('show-login');
     Route::get('/register', 'showRegister')->name('show-register');
+
+    Route::get('/verify-otp', [AuthController::class, 'showOtpForm'])->name('otp.verify');
+    Route::post('/verify-otp', [AuthController::class, 'verifyOtp'])->name('otp.verify.submit');
+
+    // Forgot Password Flow
+    Route::get('/forgot-password', [AuthController::class, 'showForgotPasswordForm'])->name('password.request');
+    Route::post('/forgot-password/send', [AuthController::class, 'sendResetOtp'])->name('password.email');
+
+    Route::get('/forgot-password/verify', [AuthController::class, 'showResetOtpForm'])->name('password.otp.form');
+    Route::post('/forgot-password/verify', [AuthController::class, 'verifyResetOtp'])->name('password.otp.verify');
+
+    Route::get('/reset-password', [AuthController::class, 'showNewPasswordForm'])->name('password.reset.form');
+    Route::post('/reset-password', [AuthController::class, 'updatePassword'])->name('password.update');
+
+    Route::get('auth/google', [AuthController::class, 'redirectToGoogle'])->name('auth.google');
+    Route::get('auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
 
     Route::post('/register', 'register')->name('register');
     Route::post('/login', 'login')->name('login');
@@ -83,15 +100,17 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
 
 // Student Routes
 Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')->group(function () {
-
+    // Dashboard page
     Route::get('/dashboard', [StudentController::class, 'dashboard'])->name('dashboard');
-
     Route::post('/join-class', [StudentController::class, 'joinClass'])->name('join.class');
+    Route::get('/classes/{id}', [StudentController::class, 'showClass'])->name('classes.show');
 
+    // Exam page
     Route::get('/exams', [StudentController::class, 'activeExams'])->name('exams.index');
     Route::get('/student/exams/{id}/start', [StudentController::class, 'startExam'])->name('exams.start');
     Route::post('/student/exams/{id}/submit', [StudentController::class, 'submitExam'])->name('exams.submit');
 
+    // Results page
     Route::get('/my-results', [StudentController::class, 'myResults'])->name('results.index');
 
     // Profile setting

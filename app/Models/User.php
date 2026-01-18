@@ -24,6 +24,10 @@ class User extends Authenticatable
         'password',
         'role',
         'profile_image',
+        'otp',
+        'otp_expires_at',
+        'email_verfied',
+        'google_id',
     ];
 
     public function managedClasses()
@@ -63,5 +67,7 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'opt_expires_at' => 'datetime',
+        'email_verfied' => 'boolean',
     ];
 }

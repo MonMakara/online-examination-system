@@ -61,6 +61,20 @@ class StudentController extends Controller
         return redirect()->route('student.dashboard')->with('success', 'Successfully joined ' . $class->name . '!');
     }
 
+    public function showClass($id)
+    {
+        $student = auth()->user();
+
+        // Check if student is enrolled in this class
+        $class = $student->enrolledClasses()
+            ->with(['teacher', 'exams' => function($query) {
+                $query->latest();
+            }])
+            ->findOrFail($id);
+
+        return view('student.classes.show', compact('class'));
+    }
+
     public function profile()
     {
         return view('student.profile', ['user' => auth()->user()]);
@@ -151,22 +165,19 @@ class StudentController extends Controller
         }
 
         $examClosedAt = $exam->closed_at
-    ? $exam->closed_at->toIso8601String()
-    : null;
+            ? $exam->closed_at->toIso8601String()
+            : null;
 
-$examDueAt = $exam->due_at
-    ? $exam->due_at->toIso8601String()
-    : null;
+        $examDueAt = $exam->due_at
+            ? $exam->due_at->toIso8601String()
+            : null;
 
-return view('student.exams.take', compact(
-    'exam',
-    'examClosedAt',
-    'examDueAt'
-));
-
+        return view('student.exams.take', compact(
+            'exam',
+            'examClosedAt',
+            'examDueAt'
+        ));
     }
-
-    // ... [submitExam and myResults remain unchanged] ...
 
     public function submitExam(Request $request, $id)
     {
@@ -178,6 +189,12 @@ return view('student.exams.take', compact(
         if ($exam->closed_at && $now->gt($exam->closed_at)) {
             return redirect()->route('student.exams.index')
                 ->with('warning', 'The submission window for this exam has closed.');
+        }
+
+        // 2. Prevent Duplicate Submission
+        $alreadyTaken = Result::where('exam_id', $id)->where('user_id', $userId)->exists();
+        if ($alreadyTaken) {
+            return redirect()->route('student.exams.index')->with('warning', 'You have already submitted this exam.');
         }
 
         $request->validate(['answers' => 'required|array']);
@@ -217,6 +234,7 @@ return view('student.exams.take', compact(
             ->with('success', 'Exam submitted successfully! Score: ' . round($finalScore) . '%');
     }
 
+    
     public function myResults()
     {
         $results = Result::where('user_id', auth()->id())

@@ -51,15 +51,63 @@
                 <div class="p-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         @forelse($classes as $class)
-                            <div class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition group">
-                                <div class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded flex items-center justify-center mr-4">
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                            {{-- Wrap entire card in a block link for better UX --}}
+                            <a href="{{ route('student.classes.show', $class->id) }}" class="block h-full">
+                                <div class="flex flex-col h-full bg-white border border-gray-200 rounded-2xl p-5 hover:shadow-xl hover:border-indigo-300 hover:-translate-y-1 transition-all duration-300 group relative overflow-hidden">
+                                    {{-- Decorative Element --}}
+                                    <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-indigo-50 to-transparent rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
+
+                                    {{-- Header: Class Logo & Name --}}
+                                    <div class="flex items-start mb-5 relative z-10">
+                                        <div class="flex-shrink-0 mr-4">
+                                            <div class="w-14 h-14 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center overflow-hidden shadow-sm group-hover:shadow-md transition">
+                                                @if($class->logo)
+                                                    <img src="{{ asset('storage/' . $class->logo) }}" alt="{{ $class->name }}" class="w-full h-full object-cover">
+                                                @else
+                                                    <span class="text-xl font-bold text-gray-300">{{ substr($class->name, 0, 1) }}</span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        <div class="flex-1 min-w-0 pt-0.5">
+                                            <h4 class="text-lg font-bold text-gray-900 leading-tight group-hover:text-indigo-600 transition mb-1 line-clamp-2">
+                                                {{ $class->name }}
+                                            </h4>
+                                            <div class="flex items-center text-xs text-gray-400 font-medium">
+                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"/></svg>
+                                                ID: #{{ $class->id }}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {{-- Info Grid --}}
+                                    <div class="grid grid-cols-2 gap-4 mt-auto relative z-10 border-t border-gray-50 pt-4">
+                                        {{-- Teacher --}}
+                                        <div>
+                                            <span class="text-[10px] uppercase tracking-wider text-gray-400 font-bold block mb-2">Instructor</span>
+                                            <div class="flex items-center">
+                                                @if($class->teacher && $class->teacher->profile_image)
+                                                    <img src="{{ asset('storage/' . $class->teacher->profile_image) }}" class="w-6 h-6 rounded-full object-cover border border-gray-100 mr-2">
+                                                @else
+                                                     <div class="w-6 h-6 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100 flex items-center justify-center text-[8px] font-bold mr-2">
+                                                        {{ substr($class->teacher->name ?? '?', 0, 1) }}
+                                                    </div>
+                                                @endif
+                                                <span class="text-xs font-semibold text-gray-700 truncate max-w-[80px]" title="{{ $class->teacher->name ?? 'Unassigned' }}">
+                                                    {{ $class->teacher->name ?? 'Unassigned' }}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        {{-- Code --}}
+                                        <div class="text-right">
+                                             <span class="text-[10px] uppercase tracking-wider text-gray-400 font-bold block mb-2">Class Code</span>
+                                             <span class="inline-block px-2 py-1 bg-gray-50 text-gray-600 text-xs font-mono font-bold rounded-md border border-gray-200">
+                                                {{ $class->code }}
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div>
-                                    <p class="text-sm font-bold text-gray-800">{{ $class->name }}</p>
-                                    <p class="text-xs text-gray-500">Instructor: {{ $class->teacher->name }}</p>
-                                </div>
-                            </div>
+                            </a>
                         @empty
                             <div class="col-span-2 py-10 text-center border-2 border-dashed border-gray-200 rounded-lg">
                                 <p class="text-gray-400 text-sm italic">You are not enrolled in any classes yet.</p>

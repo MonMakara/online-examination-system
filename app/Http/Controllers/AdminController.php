@@ -145,7 +145,7 @@ class AdminController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'teacher_id' => 'required|exists:users,id',
-            'logo' => 'nullable|image|mimes:jpeg,png,jpg,svg|max:2048', // 2MB Max
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,svg|max:2048', 
         ]);
 
         $logoPath = null;
@@ -235,7 +235,6 @@ class AdminController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,'.$user->id,
             'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-
             'current_password' => 'nullable|required_with:new_password',
             'new_password' => ['nullable', 'confirmed', 'min:6'],
         ]);

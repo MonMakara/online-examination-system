@@ -3,6 +3,7 @@
         <a href="{{ route('admin.dashboard') }}" class="text-2xl font-black text-indigo-600 tracking-tighter">
             Exam<span class="text-gray-900">System</span>
         </a>
+        <p class="text-[10px] uppercase tracking-widest text-gray-400 font-bold mt-1">Student Portal</p>
     </div>
 
     <nav class="flex-1 px-4 space-y-2 overflow-y-auto">
