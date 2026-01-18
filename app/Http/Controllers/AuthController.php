@@ -14,13 +14,14 @@ use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
-    // Show Register
+    // ==========================================
+    // 1. REGISTER
+    // ==========================================
     public function showRegister()
     {
         return view('auth.register');
     }
 
-    // Register
     public function register(Request $request)
     {
         $request->validate([
@@ -36,10 +37,10 @@ class AuthController extends Controller
         $user->email = request('email');
         $user->password = Hash::make(request('password'));
         $user->role = 'student';
-
-        // Database columns
+        
+        // OTP Setup
         $user->otp = $otp;
-        $user->otp_expires_at = Carbon::now()->addMinutes(10); // Use plural 'addMinutes'
+        $user->otp_expires_at = Carbon::now()->addMinutes(10);
         $user->email_verified = false;
 
         $user->save();
@@ -55,13 +56,14 @@ class AuthController extends Controller
         return redirect()->route('otp.verify')->with('success', 'Registered! Check email for OTP.');
     }
 
-    // Show Login
+    // ==========================================
+    // 2. LOGIN
+    // ==========================================
     public function showLogin()
     {
         return view('auth.login');
     }
 
-    // Login
     public function login(Request $request)
     {
         $request->validate([
@@ -71,16 +73,18 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        // FIXED: 'passowrd' -> 'password'
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        // FIX: Check if user exists AND has a password (Google users might not have one)
+        // Also fixed typo 'passowrd' -> 'password'
+        if (!$user || !$user->password || !Hash::check($request->password, $user->password)) {
             return back()->withErrors(['email' => 'Invalid email or password']);
         }
 
+        // Generate OTP
         $otp = rand(100000, 999999);
 
         $user->update([
             'otp' => $otp,
-            'otp_expires_at' => Carbon::now()->addMinutes(10) // Use plural 'addMinutes'
+            'otp_expires_at' => Carbon::now()->addMinutes(10)
         ]);
 
         try {
@@ -91,20 +95,19 @@ class AuthController extends Controller
 
         session(['temp_user_id' => $user->id]);
 
-        // FIXED: 'opt.verify' -> 'otp.verify'
+        // FIX: Route typo 'opt.verify' -> 'otp.verify'
         return redirect()->route('otp.verify');
     }
 
-    // OTP Flow
-    public function showOtpForm()
-    {
+    // ==========================================
+    // 3. OTP VERIFICATION
+    // ==========================================
+    public function showOtpForm() {
         return view('auth.otp-verify');
     }
 
-    public function verifyOtp(Request $request)
-    {
-
-        // FIXED: 'opt' -> 'otp'
+    public function verifyOtp(Request $request) {
+        // FIX: Input name typo 'opt' -> 'otp'
         $request->validate([
             'otp' => ['required', 'numeric', 'digits:6'],
         ]);
@@ -121,10 +124,8 @@ class AuthController extends Controller
             return redirect()->route('show-login')->with('error', 'User not found.');
         }
 
-        // FIXED: 'opt' -> 'otp' AND 'opt_expires_at' -> 'otp_expires_at'
+        // FIX: DB column typo 'opt' -> 'otp'
         if ($user->otp == $request->otp && Carbon::now()->lessThanOrEqualTo($user->otp_expires_at)) {
-
-            // FIXED: Updating correct DB columns ('otp', not 'opt')
             $user->update([
                 'otp' => null,
                 'otp_expires_at' => null,
@@ -135,32 +136,106 @@ class AuthController extends Controller
             session()->forget('temp_user_id');
             $request->session()->regenerate();
 
-            return match (Auth::user()->role) {
-                'admin' => redirect()->route('admin.dashboard'),
-                'teacher' => redirect()->route('teacher.dashboard'),
-                default => redirect()->route('student.dashboard'),
-            };
+            return $this->redirectBasedOnRole();
         }
 
         return back()->withErrors(['otp' => 'Invalid or expired code.']);
     }
 
-    // 1. Show Email Form
+    // ==========================================
+    // 4. GOOGLE LOGIN
+    // ==========================================
+    public function redirectToGoogle()
+    {
+        return Socialite::driver('google')->redirect();
+    }
+
+    public function handleGoogleCallback()
+    {
+        try {
+            $googleUser = Socialite::driver('google')->user();
+        } catch (\Exception $e) {
+            return redirect()->route('show-login')->with('error', 'Google Login failed. Try again.');
+        }
+
+        $user = User::where('google_id', $googleUser->id)
+                    ->orWhere('email', $googleUser->email)
+                    ->first();
+
+        if ($user) {
+            // Update Google ID if user registered with email before but now uses Google
+            if (!$user->google_id) {
+                $user->update(['google_id' => $googleUser->id]);
+            }
+            Auth::login($user);
+            return $this->redirectBasedOnRole();
+        } else {
+            // Create new user (No Password)
+            $newUser = User::create([
+                'name' => $googleUser->name,
+                'email' => $googleUser->email,
+                'google_id' => $googleUser->id,
+                'role' => 'student',
+                'email_verified' => true,
+                'password' => null // Explicitly null so we know they are a Google user
+            ]);
+
+            Auth::login($newUser);
+            return $this->redirectBasedOnRole();
+        }
+    }
+
+    // ==========================================
+    // 5. DELETE ACCOUNT (Fixed Logic)
+    // ==========================================
+    public function showDeleteAccount()
+    {
+        return view('auth.delete-account');
+    }
+
+    public function destroyAccount(Request $request)
+    {
+        $user = Auth::user();
+
+        // FIX: Only ask for password if the user actually HAS one.
+        // Google users will skip this check.
+        if ($user->password) {
+            $request->validate([
+                'password' => ['required', 'current_password'],
+            ]);
+        }
+
+        Auth::logout();
+
+        if ($user->delete()) {
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+            
+            return redirect()->route('show-login')->with('success', 'Your account has been permanently deleted.');
+        }
+
+        return back()->with('error', 'Error deleting account.');
+    }
+
+    // ==========================================
+    // 6. FORGOT PASSWORD FLOW
+    // ==========================================
     public function showForgotPasswordForm()
     {
         return view('auth.forgot-password');
     }
 
-    // 2. Send OTP to Email
     public function sendResetOtp(Request $request)
     {
         $request->validate(['email' => 'required|email|exists:users,email']);
-
         $user = User::where('email', $request->email)->first();
 
-        // Generate OTP
-        $otp = rand(100000, 999999);
+        // FIX: Google Users cannot reset password (they don't have one)
+        if (!$user->password) {
+             return back()->withErrors(['email' => 'This account uses Google Login. Please sign in with Google.']);
+        }
 
+        $otp = rand(100000, 999999);
         $user->update([
             'otp' => $otp,
             'otp_expires_at' => Carbon::now()->addMinutes(10)
@@ -172,130 +247,60 @@ class AuthController extends Controller
             return back()->withErrors(['email' => 'Failed to send email.']);
         }
 
-        // Store email in session to track who is resetting
         session(['reset_email' => $user->email]);
-
         return redirect()->route('password.otp.form')->with('success', 'OTP sent to your email.');
     }
 
-    // 3. Show OTP Form
     public function showResetOtpForm()
     {
-        return view('auth.reset-otp');
+        return view('auth.reset-otp'); 
     }
 
-    // 4. Verify OTP
     public function verifyResetOtp(Request $request)
     {
         $request->validate(['otp' => 'required|numeric|digits:6']);
-
         $email = session('reset_email');
         if (!$email) return redirect()->route('password.request')->with('error', 'Session expired.');
 
         $user = User::where('email', $email)->first();
 
         if ($user && $user->otp == $request->otp && Carbon::now()->lessThanOrEqualTo($user->otp_expires_at)) {
-
-            // Mark session as "verified" so they can access the next page
             session(['otp_verified_for_reset' => true]);
-
-            // Clear OTP to prevent re-use
             $user->update(['otp' => null, 'otp_expires_at' => null]);
-
             return redirect()->route('password.reset.form');
         }
 
         return back()->withErrors(['otp' => 'Invalid or expired OTP.']);
     }
 
-    // 5. Show New Password Form
     public function showNewPasswordForm()
     {
-        // Security Check: Don't let them here unless they verified OTP
-        if (!session('otp_verified_for_reset')) {
-            return redirect()->route('password.request');
-        }
-
+        if (!session('otp_verified_for_reset')) return redirect()->route('password.request');
         return view('auth.new-password');
     }
 
-    // 6. Update Password
     public function updatePassword(Request $request)
     {
-        $request->validate([
-            'password' => ['required', 'min:6', 'confirmed'],
-        ]);
-
+        $request->validate(['password' => ['required', 'min:6', 'confirmed']]);
         $email = session('reset_email');
         if (!$email) return redirect()->route('password.request');
 
         $user = User::where('email', $email)->first();
+        $user->update(['password' => Hash::make($request->password)]);
 
-        $user->update([
-            'password' => Hash::make($request->password)
-        ]);
-
-        // Clean up session
         session()->forget(['reset_email', 'otp_verified_for_reset']);
-
         return redirect()->route('show-login')->with('success', 'Password reset successfully! Please login.');
     }
 
-    // Logout
+    // ==========================================
+    // 7. LOGOUT & HELPER
+    // ==========================================
     public function logout(Request $request)
     {
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-
         return redirect()->route('show-login');
-    }
-
-    // 1. Send user to Google
-    public function redirectToGoogle()
-    {
-        return Socialite::driver('google')->redirect();
-    }
-
-    // 2. Handle the return
-    public function handleGoogleCallback()
-    {
-        try {
-            $googleUser = Socialite::driver('google')->user();
-        } catch (\Exception $e) {
-            return redirect()->route('show-login')->with('error', 'Login failed');
-        }
-
-        // Check if user exists by Google ID or Email
-        $user = User::where('google_id', $googleUser->id)
-            ->orWhere('email', $googleUser->email)
-            ->first();
-
-        if ($user) {
-            // Update Google ID if it was missing (e.g., they signed up with email before)
-            if (!$user->google_id) {
-                $user->update(['google_id' => $googleUser->id]);
-            }
-
-            Auth::login($user);
-
-            // Redirect based on role
-            return $this->redirectBasedOnRole();
-        } else {
-            // Create new user
-            $newUser = User::create([
-                'name' => $googleUser->name,
-                'email' => $googleUser->email,
-                'google_id' => $googleUser->id,
-                'role' => 'student',
-                'email_verified' => true,
-                'password' => Hash::make(Str::random(24))
-            ]);
-
-            Auth::login($newUser);
-
-            return $this->redirectBasedOnRole();
-        }
     }
 
     private function redirectBasedOnRole()

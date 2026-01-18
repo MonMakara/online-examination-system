@@ -38,6 +38,10 @@ Route::controller(AuthController::class)->group(function () {
     Route::post('/register', 'register')->name('register');
     Route::post('/login', 'login')->name('login');
     Route::post('/logout', 'logout')->name('logout');
+
+    Route::get('/account/delete', [AuthController::class, 'showDeleteAccount'])->name('account.delete.show');
+
+    Route::delete('/account/delete', [AuthController::class, 'destroyAccount'])->name('account.delete');
 });
 
 // Admin Routes
