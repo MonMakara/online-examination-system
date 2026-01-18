@@ -195,8 +195,6 @@
                                             </svg>
                                         </a>
 
-                                        {{-- Delete Button Wrapper --}}
-                                        {{-- Added 'flex' and 'items-center' to the form below --}}
                                         <form action="{{ route('admin.classes.destroy', $class->id) }}" method="POST"
                                             class="flex items-center m-0"
                                             onsubmit="return confirm('Are you sure you want to delete this class?')">
@@ -217,7 +215,11 @@
                                 </td>
                             </tr>
                         @empty
-                            {{-- ... empty state ... --}}
+                            <tr>
+                                <td colspan="4" class="px-8 py-12 text-center">
+                                    <p class="text-gray-400 font-medium">No classes found matching your criteria.</p>
+                                </td>
+                            </tr>
                         @endforelse
                     </tbody>
                 </table>
