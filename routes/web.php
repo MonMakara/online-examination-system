@@ -116,6 +116,7 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
 
     // Results page
     Route::get('/my-results', [StudentController::class, 'myResults'])->name('results.index');
+    Route::get('/student/exams/review/{id}', [App\Http\Controllers\StudentController::class, 'reviewExam'])->name('student.exams.review');
 
     // Profile setting
     Route::get('/profile', [StudentController::class, 'profile'])->name('profile');

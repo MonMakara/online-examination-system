@@ -67,7 +67,7 @@ class StudentController extends Controller
 
         // Check if student is enrolled in this class
         $class = $student->enrolledClasses()
-            ->with(['teacher', 'exams' => function($query) {
+            ->with(['teacher', 'exams' => function ($query) {
                 $query->latest();
             }])
             ->findOrFail($id);
@@ -123,25 +123,35 @@ class StudentController extends Controller
         $studentId = auth()->id();
         $now = now();
 
+        // 1. Get Class IDs
         $enrolledClassIds = DB::table('class_student')
             ->where('student_id', $studentId)
             ->pluck('class_id');
 
-        $exams = Exam::whereIn('class_id', $enrolledClassIds)
+        // 2. Base Query: Exams in my classes that I have NOT taken yet
+        $baseQuery = Exam::whereIn('class_id', $enrolledClassIds)
             ->whereDoesntHave('results', function ($query) use ($studentId) {
                 $query->where('user_id', $studentId);
             })
-            // Filter out exams that are strictly closed
+            ->with(['classRoom.teacher'])
+            ->withCount('questions');
+
+        // 3. Fetch Active Exams (No close date OR close date is in future)
+        $activeExams = (clone $baseQuery)
             ->where(function ($query) use ($now) {
                 $query->whereNull('closed_at')
                     ->orWhere('closed_at', '>', $now);
             })
-            ->with(['classRoom.teacher']) // Links Exam -> ClassRoom -> Teacher
-            ->withCount('questions')
             ->latest()
             ->get();
 
-        return view('student.exams.active', compact('exams'));
+        // 4. Fetch Missed Exams (Close date has passed)
+        $missedExams = (clone $baseQuery)
+            ->where('closed_at', '<=', $now)
+            ->latest()
+            ->get();
+
+        return view('student.exams.active', compact('activeExams', 'missedExams'));
     }
 
     public function startExam($id)
@@ -234,7 +244,7 @@ class StudentController extends Controller
             ->with('success', 'Exam submitted successfully! Score: ' . round($finalScore) . '%');
     }
 
-    
+
     public function myResults()
     {
         $results = Result::where('user_id', auth()->id())
@@ -243,5 +253,27 @@ class StudentController extends Controller
             ->get();
 
         return view('student.results.index', compact('results'));
+    }
+
+    public function reviewExam($id)
+    {
+        $userId = auth()->id();
+
+        // 1. Fetch Result and verify ownership (Security)
+        $result = Result::where('id', $id)
+            ->where('user_id', $userId)
+            ->with('exam.classRoom')
+            ->firstOrFail();
+
+        // 2. Fetch Exam with Questions
+        // We also fetch the 'studentAnswers' relation specifically for this user
+        // so we can map Question ID -> Selected Option easily in the view.
+        $exam = Exam::with(['questions' => function ($q) use ($userId) {
+            $q->with(['studentAnswers' => function ($sa) use ($userId) {
+                $sa->where('user_id', $userId);
+            }]);
+        }])->findOrFail($result->exam_id);
+
+        return view('student.exams.review', compact('exam', 'result'));
     }
 }
