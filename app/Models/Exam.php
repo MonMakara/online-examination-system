@@ -25,6 +25,16 @@ class Exam extends Model
         return now()->lt($this->closed_at);
     }
 
+    public function getStatusAttribute()
+    {
+        // Optimization: Use the loaded count if available to avoid N+1 queries
+        if (isset($this->attributes['questions_count'])) {
+            return $this->attributes['questions_count'] > 0 ? 'published' : 'draft';
+        }
+
+        return $this->questions()->exists() ? 'published' : 'draft';
+    }
+
     public function classRoom()
     {
         return $this->belongsTo(ClassRoom::class, 'class_id');

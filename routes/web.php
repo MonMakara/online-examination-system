@@ -92,6 +92,9 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
     // Questions management
     Route::get('/exam/{exam}/questions/create', [QuestionController::class, 'createQuestions'])->name('exams.questions.create');
     Route::post('/exams/{exam}/questions/store', [QuestionController::class, 'storeQuestions'])->name('exam.questions.store');
+    Route::get('/questions/{id}/edit', [QuestionController::class, 'editQuestions'])->name('questions.edit');
+    Route::put('/questions/{id}', [QuestionController::class, 'updateQuestions'])->name('questions.update');
+    Route::delete('/questions/{id}', [QuestionController::class, 'destroyQuestions'])->name('questions.destroy');
 
     // Profile Settings
     Route::get('/profile', [TeacherController::class, 'profile'])->name('profile');
