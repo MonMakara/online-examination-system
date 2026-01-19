@@ -63,6 +63,7 @@
                                         class="relative flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50/50 hover:border-blue-200 transition group">
                                         <input type="radio" name="answers[{{ $question->id }}]"
                                             value="{{ $letter }}"
+                                            {{ old("answers.$question->id") == $letter ? 'checked' : '' }}
                                             class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500">
                                         <div class="ml-4">
                                             <span
@@ -141,9 +142,35 @@
                 },
 
                 confirmSubmit() {
-                    if (confirm('Submit now? You cannot change answers later.')) {
-                        this.submitForm();
+                    const form = document.getElementById('examForm');
+                    const totalQuestions = {{ $exam->questions->count() }};
+                    
+                    // Count answered questions
+                    const formData = new FormData(form);
+                    let answeredCount = 0;
+                    for (let pair of formData.entries()) {
+                        if (pair[0].startsWith('answers[')) {
+                            answeredCount++;
+                        }
                     }
+
+                    if (answeredCount === 0) {
+                        alert('You have not answered any questions. Please select at least one answer before submitting.');
+                        return;
+                    }
+
+                    if (answeredCount < totalQuestions) {
+                         const remaining = totalQuestions - answeredCount;
+                         if (!confirm(`You have ${remaining} unanswered question(s). Are you sure you want to submit?`)) {
+                             return;
+                         }
+                    } else {
+                        if (!confirm('Are you sure you want to submit your exam?')) {
+                            return;
+                        }
+                    }
+                    
+                    this.submitForm();
                 },
 
                 submitForm() {
