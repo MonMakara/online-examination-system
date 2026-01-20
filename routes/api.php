@@ -14,6 +14,61 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+use App\Http\Controllers\Api\AuthApiController;
+use App\Http\Controllers\Api\StudentApiController;
+use App\Http\Controllers\Api\TeacherApiController;
+use App\Http\Controllers\Api\AdminApiController;
+
+// Public Auth Routes
+Route::post('/login', [AuthApiController::class, 'login']);
+
+// Protected Routes
+Route::middleware('auth:sanctum')->group(function () {
+    // Auth & Profile
+    Route::post('/logout', [AuthApiController::class, 'logout']);
+    Route::get('/user', [AuthApiController::class, 'user']);
+    Route::post('/user/update', [AuthApiController::class, 'updateProfile']);
+
+    // Student Routes
+    Route::prefix('student')->group(function () {
+        Route::get('/dashboard', [StudentApiController::class, 'dashboard']);
+        Route::get('/classes', [StudentApiController::class, 'classes']);
+        Route::get('/exams', [StudentApiController::class, 'exams']); # exams to take
+        Route::get('/results', [StudentApiController::class, 'results']);
+        Route::get('/results/{id}', [StudentApiController::class, 'reviewExam']); # Deep dive
+        Route::post('/join-class', [StudentApiController::class, 'joinClass']);
+        Route::post('/exams/{id}/submit', [StudentApiController::class, 'submitExam']);
+    });
+
+    // Teacher Routes
+    Route::prefix('teacher')->group(function () {
+        Route::get('/dashboard', [TeacherApiController::class, 'dashboard']);
+        Route::get('/classes', [TeacherApiController::class, 'classes']);
+        Route::get('/classes/{id}/grades', [TeacherApiController::class, 'getClassGrades']); 
+        Route::get('/students', [TeacherApiController::class, 'students']);
+        
+        // Exam Management
+        Route::get('/exams', [TeacherApiController::class, 'getExams']);
+        Route::post('/exams', [TeacherApiController::class, 'storeExam']);
+        Route::put('/exams/{id}', [TeacherApiController::class, 'updateExam']);
+        Route::delete('/exams/{id}', [TeacherApiController::class, 'destroyExam']);
+
+        // Question Management
+        Route::post('/exams/{id}/questions', [TeacherApiController::class, 'storeQuestion']);
+        Route::delete('/questions/{id}', [TeacherApiController::class, 'destroyQuestion']);
+    });
+
+    // Admin Routes
+    Route::prefix('admin')->group(function () {
+        Route::get('/dashboard', [AdminApiController::class, 'dashboard']);
+        Route::get('/teachers', [AdminApiController::class, 'teachers']);
+        Route::post('/teachers', [AdminApiController::class, 'storeTeacher']);
+        Route::put('/teachers/{id}', [AdminApiController::class, 'updateTeacher']);
+        Route::delete('/teachers/{id}', [AdminApiController::class, 'destroyTeacher']);
+
+        Route::get('/classes', [AdminApiController::class, 'classes']);
+        Route::post('/classes', [AdminApiController::class, 'storeClass']);
+        Route::put('/classes/{id}', [AdminApiController::class, 'updateClass']);
+        Route::delete('/classes/{id}', [AdminApiController::class, 'destroyClass']);
+    });
 });
