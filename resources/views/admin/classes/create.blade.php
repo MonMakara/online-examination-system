@@ -3,7 +3,7 @@
 @section('title', 'Create New Class')
 
 @section('content')
-<div class="max-w-5xl">
+<div class="max-w-5xl px-4 lg:px-8">
     
     <div class="mb-6">
         <a href="{{route('admin.classes.index')}}" class="text-sm text-indigo-600 hover:text-indigo-800 flex items-center font-medium transition">

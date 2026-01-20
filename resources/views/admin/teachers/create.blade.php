@@ -3,7 +3,7 @@
 @section('title', 'Add New Teacher')
 
 @section('content')
-    <div class="max-w-3xl px-8">
+    <div class="max-w-3xl px-4 lg:px-8">
         <div class="mb-6">
             <a href="{{ route('admin.teachers.index') }}"
                 class="text-sm text-indigo-600 hover:text-indigo-800 flex items-center">

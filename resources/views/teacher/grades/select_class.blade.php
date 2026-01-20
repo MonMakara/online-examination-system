@@ -3,7 +3,7 @@
 @section('title', 'Select Class Gradebook')
 
 @section('content')
-<div class="px-8 py-6">
+<div class="px-4 lg:px-8 py-6">
     {{-- Header Section --}}
     <div class="mb-8">
         <h1 class="text-2xl font-black text-gray-900 tracking-tight">Gradebook Directory</h1>

@@ -27,7 +27,7 @@ class TeacherController extends Controller
             ->get()
             ->sum('students_count');
 
-        $examCount = Exam::whereIn('class_id', $classes->pluck('id'))->count();
+        $examCount = Exam::whereIn('class_id', ClassRoom::where('teacher_id', $teacher->id)->pluck('id'))->count();
 
         return view('teacher.dashboard', compact('classes', 'totalStudent', 'examCount'));
     }

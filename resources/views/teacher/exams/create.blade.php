@@ -3,7 +3,22 @@
 @section('title', 'Create New Exam')
 
 @section('content')
-<div class="max-w-4xl mx-auto px-8 pb-12">
+<div class="max-w-4xl mx-auto px-4 lg:px-8 pb-12">
+    <div class="flex items-center justify-between mb-6">
+            <a href="{{ route('teacher.exams.index') }}"
+                class="inline-flex items-center text-sm font-semibold text-indigo-600 hover:text-indigo-800 transition">
+                <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12" />
+                </svg>
+                Back to Exams
+            </a>
+            <div class="flex space-x-3">
+                <span
+                    class="px-4 py-1.5 bg-indigo-50 text-indigo-700 rounded-full text-xs font-bold border border-indigo-100">
+                    Create New Exam
+                </span>
+            </div>
+        </div>
     <form action="{{ route('teacher.exams.store') }}" method="POST">
         @csrf
         <div class="space-y-6">

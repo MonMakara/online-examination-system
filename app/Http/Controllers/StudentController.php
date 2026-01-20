@@ -210,28 +210,36 @@ class StudentController extends Controller
         $correctCount = 0;
         $totalQuestions = $exam->questions->count();
 
-        foreach ($exam->questions as $question) {
-            $selectedOption = $studentAnswers[$question->id] ?? null;
+        DB::beginTransaction();
+        try {
+            foreach ($exam->questions as $question) {
+                $selectedOption = $studentAnswers[$question->id] ?? null;
 
-            StudentAnswer::create([
+                StudentAnswer::create([
+                    'user_id' => $userId,
+                    'exam_id' => $id,
+                    'question_id' => $question->id,
+                    'selected_option' => $selectedOption,
+                ]);
+
+                if ($selectedOption === $question->correct_option) {
+                    $correctCount++;
+                }
+            }
+
+            $finalScore = ($totalQuestions > 0) ? ($correctCount / $totalQuestions) * 100 : 0;
+
+            Result::create([
                 'user_id' => $userId,
                 'exam_id' => $id,
-                'question_id' => $question->id,
-                'selected_option' => $selectedOption,
+                'score' => round($finalScore),
             ]);
 
-            if ($selectedOption === $question->correct_option) {
-                $correctCount++;
-            }
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'An error occurred during submission: ' . $e->getMessage());
         }
-
-        $finalScore = ($totalQuestions > 0) ? ($correctCount / $totalQuestions) * 100 : 0;
-
-        Result::create([
-            'user_id' => $userId,
-            'exam_id' => $id,
-            'score' => round($finalScore),
-        ]);
 
         if ($exam->due_at && $now->gt($exam->due_at)) {
             return redirect()->route('student.exams.index')
@@ -272,6 +280,6 @@ class StudentController extends Controller
             }]);
         }])->findOrFail($result->exam_id);
 
-        return view('student.exams.review', compact('exam', 'result'));
+        return view('student.results.review', compact('exam', 'result'));
     }
 }

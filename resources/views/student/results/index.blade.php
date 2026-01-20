@@ -101,7 +101,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="px-6 py-16 text-center">
+                                <td colspan="6" class="px-6 py-16 text-center">
                                     <div
                                         class="inline-flex items-center justify-center w-12 h-12 bg-gray-50 rounded-lg mb-4">
                                         <svg class="w-6 h-6 text-gray-300" fill="none" stroke="currentColor"

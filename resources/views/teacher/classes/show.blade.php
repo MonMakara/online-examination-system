@@ -3,7 +3,7 @@
 @section('title', 'Manage Class: ' . $class->name)
 
 @section('content')
-    <div class="space-y-6 px-8">
+    <div class="space-y-6 px-4 lg:px-8">
         <div class="flex items-center justify-between">
             <a href="{{ route('teacher.classes.index') }}"
                 class="inline-flex items-center text-sm font-semibold text-indigo-600 hover:text-indigo-800 transition">

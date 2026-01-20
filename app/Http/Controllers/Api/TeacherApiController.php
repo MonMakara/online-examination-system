@@ -154,6 +154,29 @@ class TeacherApiController extends Controller
         return response()->json(['status' => true, 'message' => 'Question added successfully', 'data' => $question], 201);
     }
 
+    public function updateQuestion(Request $request, $id)
+    {
+        $question = \App\Models\Question::findOrFail($id);
+        
+        // Security check: ensure the exam belongs to this teacher
+        if ($question->exam->teacher_id !== $request->user()->id) {
+             return response()->json(['status' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        $validated = $request->validate([
+            'question' => ['required', 'string'],
+            'option_a' => ['required', 'string'],
+            'option_b' => ['required', 'string'],
+            'option_c' => ['required', 'string'],
+            'option_d' => ['required', 'string'],
+            'correct_option' => ['required', 'string', 'in:a,b,c,d'],
+        ]);
+
+        $question->update($validated);
+
+        return response()->json(['status' => true, 'message' => 'Question updated successfully', 'data' => $question]);
+    }
+
     public function destroyQuestion(Request $request, $id)
     {
         $question = \App\Models\Question::findOrFail($id);

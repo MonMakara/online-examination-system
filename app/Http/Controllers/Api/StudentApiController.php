@@ -57,11 +57,12 @@ class StudentApiController extends Controller
         $user = $request->user();
         $classIds = $user->classRooms()->pluck('class_rooms.id');
 
-        // Fetch exams from these classes
-        // Logic similar to StudentController::dashboard or exams
-        // This is a simplified fetch for active exams
+        // Fetch exams from these classes that student hasn't taken yet
         $exams = Exam::whereIn('class_id', $classIds)
-            ->with('classRoom:id,name,logo')
+            ->whereDoesntHave('results', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })
+            ->with(['classRoom:id,name,logo'])
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function($exam) {
@@ -71,7 +72,6 @@ class StudentApiController extends Controller
                     'class_name' => $exam->classRoom->name,
                     'class_logo_url' => $exam->classRoom->logo_url,
                     'start_date' => $exam->created_at->format('Y-m-d H:i'),
-                    // Add logic for 'status' if needed (e.g. if already taken)
                 ];
             });
 
@@ -83,7 +83,7 @@ class StudentApiController extends Controller
 
     public function results(Request $request)
     {
-        $results = Result::where('student_id', $request->user()->id)
+        $results = Result::where('user_id', $request->user()->id)
             ->with(['exam', 'exam.classRoom'])
             ->get()
             ->map(function($result) {
@@ -142,30 +142,36 @@ class StudentApiController extends Controller
         $correctCount = 0;
         $totalQuestions = $exam->questions->count();
 
-        foreach ($exam->questions as $question) {
-            $selectedOption = $studentAnswers[$question->id] ?? null;
-            // Assuming StudentAnswer model is imported or we use DB facade if preferred,
-            // but let's assume we import the model at top.
-            // Wait, need to check imports in file. Will add imports in separate call if needed.
-            \App\Models\StudentAnswer::create([
+        \DB::beginTransaction();
+        try {
+            foreach ($exam->questions as $question) {
+                $selectedOption = $studentAnswers[$question->id] ?? null;
+                
+                \App\Models\StudentAnswer::create([
+                    'user_id' => $user->id,
+                    'exam_id' => $id,
+                    'question_id' => $question->id,
+                    'selected_option' => $selectedOption,
+                ]);
+
+                if ($selectedOption === $question->correct_option) {
+                    $correctCount++;
+                }
+            }
+
+            $finalScore = ($totalQuestions > 0) ? ($correctCount / $totalQuestions) * 100 : 0;
+
+            Result::create([
                 'user_id' => $user->id,
                 'exam_id' => $id,
-                'question_id' => $question->id,
-                'selected_option' => $selectedOption,
+                'score' => round($finalScore),
             ]);
 
-            if ($selectedOption === $question->correct_option) {
-                $correctCount++;
-            }
+            \DB::commit();
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            return response()->json(['status' => false, 'message' => 'Error submitting exam: ' . $e->getMessage()], 500);
         }
-
-        $finalScore = ($totalQuestions > 0) ? ($correctCount / $totalQuestions) * 100 : 0;
-
-        Result::create([
-            'user_id' => $user->id,
-            'exam_id' => $id,
-            'score' => round($finalScore),
-        ]);
 
         return response()->json([
             'status' => true,

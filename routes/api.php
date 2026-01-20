@@ -21,6 +21,10 @@ use App\Http\Controllers\Api\AdminApiController;
 
 // Public Auth Routes
 Route::post('/login', [AuthApiController::class, 'login']);
+Route::post('/register', [AuthApiController::class, 'register']);
+Route::post('/verify-otp', [AuthApiController::class, 'verifyOtp']);
+Route::post('/forgot-password', [AuthApiController::class, 'forgotPassword']);
+Route::post('/reset-password', [AuthApiController::class, 'resetPassword']);
 
 // Protected Routes
 Route::middleware('auth:sanctum')->group(function () {
@@ -28,6 +32,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthApiController::class, 'logout']);
     Route::get('/user', [AuthApiController::class, 'user']);
     Route::post('/user/update', [AuthApiController::class, 'updateProfile']);
+    Route::delete('/account', [AuthApiController::class, 'deleteAccount']);
 
     // Student Routes
     Route::prefix('student')->group(function () {
@@ -55,6 +60,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Question Management
         Route::post('/exams/{id}/questions', [TeacherApiController::class, 'storeQuestion']);
+        Route::put('/questions/{id}', [TeacherApiController::class, 'updateQuestion']);
         Route::delete('/questions/{id}', [TeacherApiController::class, 'destroyQuestion']);
     });
 

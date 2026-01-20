@@ -8,7 +8,6 @@ use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\TeacherController;
 use Illuminate\Support\Facades\Route;
-use Laravel\Socialite\Facades\Socialite;
 
 // Root to login when opening system
 Route::get('/', fn() => redirect()->route('show-login'));
@@ -114,12 +113,12 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
 
     // Exam page
     Route::get('/exams', [StudentController::class, 'activeExams'])->name('exams.index');
-    Route::get('/student/exams/{id}/start', [StudentController::class, 'startExam'])->name('exams.start');
-    Route::post('/student/exams/{id}/submit', [StudentController::class, 'submitExam'])->name('exams.submit');
+    Route::get('/exams/{id}/start', [StudentController::class, 'startExam'])->name('exams.start');
+    Route::post('/exams/{id}/submit', [StudentController::class, 'submitExam'])->name('exams.submit');
 
     // Results page
     Route::get('/my-results', [StudentController::class, 'myResults'])->name('results.index');
-    Route::get('/student/exams/review/{id}', [App\Http\Controllers\StudentController::class, 'reviewExam'])->name('student.exams.review');
+    Route::get('/exams/review/{id}', [StudentController::class, 'reviewExam'])->name('exams.review');
 
     // Profile setting
     Route::get('/profile', [StudentController::class, 'profile'])->name('profile');

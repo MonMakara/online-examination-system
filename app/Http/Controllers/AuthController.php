@@ -43,16 +43,18 @@ class AuthController extends Controller
         $user->otp_expires_at = Carbon::now()->addMinutes(10);
         $user->email_verified = false;
 
-        $user->save();
-
+        \DB::beginTransaction();
         try {
+            $user->save();
             Mail::to($user->email)->send(new OTPMail($otp));
+            \DB::commit();
         } catch (\Exception $e) {
-            \Log::error('Mail Error (Register): ' . $e->getMessage(), [
+            \DB::rollBack();
+            \Log::error('Registration Error: ' . $e->getMessage(), [
                 'exception' => $e,
                 'user_email' => $user->email
             ]);
-            return back()->with('error', 'Failed to send email: ' . $e->getMessage());
+            return back()->with('error', 'Registration failed: ' . $e->getMessage());
         }
 
         session(['temp_user_id' => $user->id]);
