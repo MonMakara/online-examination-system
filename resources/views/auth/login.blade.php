@@ -99,7 +99,7 @@
                     <div class="mt-6">
                         <a href="{{route('auth.google')}}"
                             class="w-full inline-flex justify-center py-2 px-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                            <img src="icons/google.png" alt="Google" class="h-6 w-6 object-cover">
+                            <p>Google</p>
                         </a>
                     </div>
                 </div>
