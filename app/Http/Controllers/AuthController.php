@@ -79,8 +79,6 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        // FIX: Check if user exists AND has a password (Google users might not have one)
-        // Also fixed typo 'passowrd' -> 'password'
         if (!$user || !$user->password || !Hash::check($request->password, $user->password)) {
             return back()->withErrors(['email' => 'Invalid email or password']);
         }
@@ -105,7 +103,6 @@ class AuthController extends Controller
 
         session(['temp_user_id' => $user->id]);
 
-        // FIX: Route typo 'opt.verify' -> 'otp.verify'
         return redirect()->route('otp.verify');
     }
 
@@ -117,7 +114,6 @@ class AuthController extends Controller
     }
 
     public function verifyOtp(Request $request) {
-        // FIX: Input name typo 'opt' -> 'otp'
         $request->validate([
             'otp' => ['required', 'numeric', 'digits:6'],
         ]);

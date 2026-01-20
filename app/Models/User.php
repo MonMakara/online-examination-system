@@ -26,7 +26,7 @@ class User extends Authenticatable
         'profile_image',
         'otp',
         'otp_expires_at',
-        'email_verfied',
+        'email_verified',
         'google_id',
     ];
 
@@ -67,8 +67,8 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'opt_expires_at' => 'datetime',
-        'email_verfied' => 'boolean',
+        'otp_expires_at' => 'datetime',
+        'email_verified' => 'boolean',
     ];
     public function getProfileImageUrlAttribute()
     {
