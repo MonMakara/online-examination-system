@@ -48,6 +48,10 @@ class AuthController extends Controller
         try {
             Mail::to($user->email)->send(new OTPMail($otp));
         } catch (\Exception $e) {
+            \Log::error('Mail Error (Register): ' . $e->getMessage(), [
+                'exception' => $e,
+                'user_email' => $user->email
+            ]);
             return back()->with('error', 'Failed to send email: ' . $e->getMessage());
         }
 
@@ -90,7 +94,11 @@ class AuthController extends Controller
         try {
             Mail::to($user->email)->send(new OTPMail($otp));
         } catch (\Exception $e) {
-            return back()->withErrors(['email' => 'Error sending OTP.']);
+            \Log::error('Mail Error (Login): ' . $e->getMessage(), [
+                'exception' => $e,
+                'user_email' => $user->email
+            ]);
+            return back()->withErrors(['email' => 'Error sending OTP: ' . $e->getMessage()]);
         }
 
         session(['temp_user_id' => $user->id]);
@@ -244,7 +252,11 @@ class AuthController extends Controller
         try {
             Mail::to($user->email)->send(new OTPMail($otp));
         } catch (\Exception $e) {
-            return back()->withErrors(['email' => 'Failed to send email.']);
+            \Log::error('Mail Error (Reset Password): ' . $e->getMessage(), [
+                'exception' => $e,
+                'user_email' => $user->email
+            ]);
+            return back()->withErrors(['email' => 'Failed to send email: ' . $e->getMessage()]);
         }
 
         session(['reset_email' => $user->email]);
