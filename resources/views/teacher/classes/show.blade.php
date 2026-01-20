@@ -73,7 +73,7 @@
                                                 <div
                                                     class="h-9 w-9 rounded-full ring-2 ring-gray-100 flex-shrink-0 overflow-hidden">
                                                     @if ($student->profile_image)
-                                                        <img src="{{ asset('storage/' . $student->profile_image) }}"
+                                                        <img src="{{ $student->profile_image }}"
                                                             alt="{{ $student->name }}" class="h-full w-full object-cover">
                                                     @else
                                                         <div

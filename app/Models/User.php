@@ -70,4 +70,14 @@ class User extends Authenticatable
         'opt_expires_at' => 'datetime',
         'email_verfied' => 'boolean',
     ];
+    public function getProfileImageUrlAttribute()
+    {
+        if ($this->profile_image) {
+            return str_starts_with($this->profile_image, 'http')
+                ? $this->profile_image
+                : asset('storage/' . $this->profile_image);
+        }
+
+        return 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&bg=4f46e5&color=fff';
+    }
 }

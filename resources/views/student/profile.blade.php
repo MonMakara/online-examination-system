@@ -37,7 +37,7 @@
                 <div class="p-8 flex items-center space-x-6">
                     <div class="shrink-0">
                         <img id="preview" class="h-20 w-20 object-cover rounded-full ring-4 ring-indigo-50 shadow-inner"
-                            src="{{ Auth::user()->profile_image ? asset('storage/' . Auth::user()->profile_image) : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->name) . '&bg=6366f1&color=fff' }}"
+                            src="{{ Auth::user()->profile_image_url }}"
                             alt="Student profile photo">
                     </div>
                     <label class="block">

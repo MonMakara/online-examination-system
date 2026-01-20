@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 
+use App\Services\ImageUploadService;
+
 class StudentController extends Controller
 {
     // Dashboard
@@ -80,7 +82,7 @@ class StudentController extends Controller
         return view('student.profile', ['user' => auth()->user()]);
     }
 
-    public function updateProfile(Request $request)
+    public function updateProfile(Request $request, ImageUploadService $imageService)
     {
         $user = auth()->user();
 
@@ -102,12 +104,8 @@ class StudentController extends Controller
 
         // Image Upload Logic
         if ($request->hasFile('profile_image')) {
-            // Delete old image if it exists
-            if ($user->profile_image) {
-                Storage::delete('public/' . $user->profile_image);
-            }
-            $path = $request->file('profile_image')->store('student_profiles', 'public');
-            $user->profile_image = $path;
+            $url = $imageService->upload($request->file('profile_image'), 'student_profiles');
+            $user->profile_image = $url;
         }
 
         $user->name = $request->name;

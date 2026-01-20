@@ -37,7 +37,7 @@
         <a href="{{ route('admin.profile') }}" class="flex items-center p-2 mb-4 rounded-lg hover:bg-gray-50 transition-colors">
             <div class="h-9 w-9 rounded-full bg-white border border-gray-200 flex items-center justify-center text-indigo-700 font-black mr-3 overflow-hidden shadow-sm shrink-0">
                 @if (auth()->user()->profile_image)
-                    <img src="{{ asset('storage/' . auth()->user()->profile_image) }}" class="h-full w-full object-cover">
+                    <img src="{{ auth()->user()->profile_image_url }}" class="h-full w-full object-cover">
                 @else
                     {{ substr(auth()->user()->name, 0, 1) }}
                 @endif

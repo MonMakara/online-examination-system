@@ -37,7 +37,7 @@
                     <div
                         class="h-8 w-8 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold shadow-sm overflow-hidden">
                         @if (auth()->user()->profile_image)
-                            <img src="{{ asset('storage/' . auth()->user()->profile_image) }}"
+                            <img src="{{ auth()->user()->profile_image_url }}"
                                 class="h-full w-full object-cover">
                         @else
                             {{ substr(auth()->user()->name, 0, 1) }}

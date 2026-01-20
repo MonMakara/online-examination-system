@@ -11,7 +11,7 @@
                 <div class="flex items-start justify-between mb-5">
                     <div class="h-14 w-14 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center overflow-hidden shadow-inner">
                         @if ($class->logo)
-                            <img src="{{ asset('storage/' . $class->logo) }}" class="h-full w-full object-cover">
+                            <img src="{{ $class->logo_url }}" class="h-full w-full object-cover">
                         @else
                             <span class="text-indigo-600 font-black text-xl">{{ substr($class->name, 0, 1) }}</span>
                         @endif

@@ -34,7 +34,7 @@
                     <span class="text-sm text-gray-500 hidden sm:block group-hover:text-gray-700 transition">Administrator</span>
                     <div class="h-8 w-8 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold shadow-sm overflow-hidden border border-indigo-200">
                         @if (auth()->user()->profile_image)
-                            <img src="{{ asset('storage/' . auth()->user()->profile_image) }}" class="h-full w-full object-cover">
+                            <img src="{{ auth()->user()->profile_image_url }}" class="h-full w-full object-cover">
                         @else
                             {{ substr(auth()->user()->name, 0, 1) }}
                         @endif

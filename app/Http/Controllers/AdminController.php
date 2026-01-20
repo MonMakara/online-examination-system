@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
+use App\Services\ImageUploadService;
+
 class AdminController extends Controller
 {
     // Dashboard
@@ -139,9 +141,9 @@ class AdminController extends Controller
     }
 
     // Store class
-    public function storeClasses(Request $request)
+    public function storeClasses(Request $request, ImageUploadService $imageService)
     {
-        // 1. Updated Validation to include the logo
+        // 1. Validation
         $request->validate([
             'name' => 'required|string|max:255',
             'teacher_id' => 'required|exists:users,id',
@@ -152,15 +154,15 @@ class AdminController extends Controller
 
         // 2. Logic to store the file
         if ($request->hasFile('logo')) {
-            // This stores the image in storage/app/public/class_logos
-            $logoPath = $request->file('logo')->store('class_logos', 'public');
+            // Upload to Cloudinary using Service
+            $logoPath = $imageService->upload($request->file('logo'), 'class_logos');
         }
 
         // 3. Create the class with the logo path
         ClassRoom::create([
             'name' => $request->name,
             'teacher_id' => $request->teacher_id,
-            'logo' => $logoPath, // Save the path string here
+            'logo' => $logoPath, 
             'code' => strtoupper(Str::random(6)),
         ]);
 
@@ -177,11 +179,11 @@ class AdminController extends Controller
     }
 
     // Update class
-    public function updateClasses(Request $request, $id)
+    public function updateClasses(Request $request, $id, ImageUploadService $imageService)
     {
         $class = ClassRoom::findOrFail($id);
 
-        // 1. Updated Validation
+        // 1. Validation
         $request->validate([
             'name' => 'required|string|max:255',
             'teacher_id' => 'required|exists:users,id',
@@ -190,13 +192,8 @@ class AdminController extends Controller
 
         // 2. Handle Logo Upload
         if ($request->hasFile('logo')) {
-            // Delete the old logo file from storage if it exists
-            if ($class->logo && Storage::disk('public')->exists($class->logo)) {
-                Storage::disk('public')->delete($class->logo);
-            }
-
-            // Store the new logo and update the path
-            $logoPath = $request->file('logo')->store('class_logos', 'public');
+            // Upload new logo to Cloudinary
+            $logoPath = $imageService->upload($request->file('logo'), 'class_logos');
             $class->logo = $logoPath;
         }
 
@@ -204,7 +201,7 @@ class AdminController extends Controller
         $class->update([
             'name' => $request->name,
             'teacher_id' => $request->teacher_id,
-            'logo' => $class->logo, // Ensure the logo path is included in the update
+            'logo' => $class->logo, 
         ]);
 
         return redirect()->route('admin.classes.index')->with('info', 'Class updated successfully');
@@ -227,7 +224,7 @@ class AdminController extends Controller
     }
 
     // Update profile
-    public function updateProfile(Request $request)
+    public function updateProfile(Request $request, ImageUploadService $imageService)
     {
         $user = auth()->user();
 
@@ -240,12 +237,8 @@ class AdminController extends Controller
         ]);
 
         if ($request->hasFile('profile_image')) {
-
-            if ($user->profile_image) {
-                Storage::disk('public')->delete($user->profile_image);
-            }
-
-            $path = $request->file('profile_image')->store('profiles', 'public');
+            // Upload to Cloudinary
+            $path = $imageService->upload($request->file('profile_image'), 'admin_profiles');
             $user->profile_image = $path;
         }
 

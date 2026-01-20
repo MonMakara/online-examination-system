@@ -113,8 +113,8 @@
                                                 {{-- Logo/Avatar --}}
                                                 <div
                                                     class="h-10 w-10 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center overflow-hidden flex-shrink-0 shadow-sm">
-                                                    @if ($class->logo && file_exists(public_path('storage/' . $class->logo)))
-                                                        <img src="{{ asset('storage/' . $class->logo) }}"
+                                                    @if ($class->logo)
+                                                        <img src="{{ $class->logo_url }}"
                                                             alt="{{ $class->name }}" class="h-full w-full object-cover">
                                                     @else
                                                         {{-- Professional Fallback: Blue Background with White Initial --}}

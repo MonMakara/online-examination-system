@@ -99,7 +99,7 @@
                                             <div
                                                 class="h-9 w-9 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center text-xs font-bold text-indigo-700 overflow-hidden shrink-0 shadow-sm">
                                                 @if ($exam->classRoom->logo)
-                                                    <img src="{{ asset('storage/' . $exam->classRoom->logo) }}"
+                                                    <img src="{{ $exam->classRoom->logo_url }}"
                                                         class="h-full w-full object-cover">
                                                 @else
                                                     <span

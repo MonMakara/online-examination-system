@@ -62,7 +62,7 @@
                                         <div class="flex-shrink-0 mr-4">
                                             <div class="w-14 h-14 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center overflow-hidden shadow-sm group-hover:shadow-md transition">
                                                 @if($class->logo)
-                                                    <img src="{{ asset('storage/' . $class->logo) }}" alt="{{ $class->name }}" class="w-full h-full object-cover">
+                                                    <img src="{{ $class->logo_url }}" alt="{{ $class->name }}" class="w-full h-full object-cover">
                                                 @else
                                                     <span class="text-xl font-bold text-gray-300">{{ substr($class->name, 0, 1) }}</span>
                                                 @endif
@@ -86,7 +86,7 @@
                                             <span class="text-[10px] uppercase tracking-wider text-gray-400 font-bold block mb-2">Instructor</span>
                                             <div class="flex items-center">
                                                 @if($class->teacher && $class->teacher->profile_image)
-                                                    <img src="{{ asset('storage/' . $class->teacher->profile_image) }}" class="w-6 h-6 rounded-full object-cover border border-gray-100 mr-2">
+                                                    <img src="{{ $class->teacher->profile_image_url }}" class="w-6 h-6 rounded-full object-cover border border-gray-100 mr-2">
                                                 @else
                                                      <div class="w-6 h-6 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100 flex items-center justify-center text-[8px] font-bold mr-2">
                                                         {{ substr($class->teacher->name ?? '?', 0, 1) }}

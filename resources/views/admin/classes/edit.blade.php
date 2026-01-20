@@ -71,7 +71,7 @@
                             <div class="flex-shrink-0">
                                 <div id="preview-container" class="h-28 w-28 rounded-2xl bg-gray-50 border-2 border-dashed border-gray-200 flex items-center justify-center overflow-hidden">
                                     @if($class->logo)
-                                        <img id="image-preview" src="{{ asset('storage/' . $class->logo) }}" class="h-full w-full object-cover">
+                                        <img id="image-preview" src="{{ $class->logo_url }}" class="h-full w-full object-cover">
                                     @else
                                         <span id="preview-placeholder" class="text-[10px] text-gray-400 font-bold uppercase text-center px-2">No Logo<br>Set</span>
                                         <img id="image-preview" class="hidden h-full w-full object-cover">

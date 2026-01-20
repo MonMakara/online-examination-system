@@ -90,7 +90,7 @@
                                         <div
                                             class="h-10 w-10 rounded-full border-2 border-white shadow-sm bg-indigo-50 flex items-center justify-center overflow-hidden flex-shrink-0">
                                             @if ($teacher->profile_image)
-                                                <img src="{{ asset('storage/' . $teacher->profile_image) }}"
+                                                <img src="{{ $teacher->profile_image_url }}"
                                                     class="h-full w-full object-cover">
                                             @else
                                                 <span class="text-indigo-600 font-black text-xs">

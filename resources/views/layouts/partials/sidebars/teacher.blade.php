@@ -45,7 +45,7 @@
         <a href="{{ route('teacher.profile') }}" class="flex items-center p-2 mb-4 rounded-lg hover:bg-gray-50 transition-colors">
             <div class="h-9 w-9 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold mr-3 overflow-hidden">
                 @if(auth()->user()->profile_image)
-                    <img src="{{ asset('storage/' . auth()->user()->profile_image) }}" class="h-full w-full object-cover">
+                    <img src="{{ auth()->user()->profile_image_url }}" class="h-full w-full object-cover">
                 @else
                     {{ substr(auth()->user()->name, 0, 1) }}
                 @endif

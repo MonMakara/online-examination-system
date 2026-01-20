@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 
+use App\Services\ImageUploadService;
+
 class TeacherController extends Controller
 {
     // Dashboard
@@ -50,7 +52,7 @@ class TeacherController extends Controller
     /* Profile management */
 
     // Update profile
-    public function updateProfile(Request $request)
+    public function updateProfile(Request $request, ImageUploadService $imageService)
     {
         $user = auth()->user();
 
@@ -72,11 +74,8 @@ class TeacherController extends Controller
 
         // Handle Image Upload
         if ($request->hasFile('profile_image')) {
-            if ($user->profile_image) {
-                Storage::delete('public/'.$user->profile_image);
-            }
-            $path = $request->file('profile_image')->store('profile_photos', 'public');
-            $user->profile_image = $path;
+            $url = $imageService->upload($request->file('profile_image'), 'teacher_profiles');
+            $user->profile_image = $url;
         }
 
         $user->name = $request->name;

@@ -36,7 +36,7 @@
                                     {{-- Class Logo Logic --}}
                                     <div class="h-14 w-14 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center overflow-hidden shrink-0">
                                         @if ($class->logo)
-                                            <img src="{{ asset('storage/' . $class->logo) }}" class="h-full w-full object-cover">
+                                            <img src="{{ $class->logo_url }}" class="h-full w-full object-cover">
                                         @else
                                             <span class="text-indigo-600 font-black text-xl">
                                                 {{ substr($class->name, 0, 1) }}
@@ -68,7 +68,7 @@
                                                     {{ ['bg-indigo-500', 'bg-emerald-500', 'bg-amber-500'][$index] }}"
                                                     title="{{ $student->name }}">
                                                     @if ($student->profile_image)
-                                                        <img src="{{ asset('storage/' . $student->profile_image) }}" class="h-full w-full object-cover">
+                                                        <img src="{{ $student->profile_image_url }}" class="h-full w-full object-cover">
                                                     @else
                                                         {{ substr($student->name, 0, 1) }}
                                                     @endif

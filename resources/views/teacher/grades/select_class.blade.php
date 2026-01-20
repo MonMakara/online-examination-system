@@ -17,7 +17,7 @@
                     {{-- Fixed Logo Logic --}}
                     <div class="h-14 w-14 bg-gray-50 border border-gray-100 rounded-2xl flex items-center justify-center overflow-hidden shadow-inner shrink-0">
                         @if ($class->logo)
-                            <img src="{{ asset('storage/' . $class->logo) }}" class="h-full w-full object-cover" alt="{{ $class->name }}">
+                            <img src="{{ $class->logo_url }}" class="h-full w-full object-cover" alt="{{ $class->name }}">
                         @else
                             <span class="text-indigo-600 font-black text-xl">
                                 {{ substr($class->name, 0, 1) }}

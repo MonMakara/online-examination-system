@@ -72,7 +72,7 @@
                                         <div class="flex items-center">
                                             <div class="h-10 w-10 rounded-full border-2 border-white shadow-sm flex-shrink-0 overflow-hidden bg-gray-100">
                                                 @if ($result->student->profile_image)
-                                                    <img src="{{ asset('storage/' . $result->student->profile_image) }}"
+                                                    <img src="{{ $result->student->profile_image_url }}"
                                                         alt="{{ $result->student->name }}"
                                                         class="h-full w-full object-cover">
                                                 @else

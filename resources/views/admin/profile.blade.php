@@ -41,7 +41,7 @@
                     <div class="relative group">
                         <div class="h-24 w-24 rounded-3xl bg-indigo-50 border-4 border-white shadow-md overflow-hidden shrink-0 transition-transform group-hover:scale-105">
                             <img id="preview" class="h-full w-full object-cover"
-                                src="{{ $user->profile_image ? asset('storage/' . $user->profile_image) : 'https://ui-avatars.com/api/?name=' . urlencode($user->name) . '&bg=4f46e5&color=fff' }}"
+                                src="{{ $user->profile_image_url }}"
                                 alt="Current profile photo">
                         </div>
                         <div class="absolute -bottom-2 -right-2 bg-white p-1.5 rounded-xl shadow-lg border border-gray-100 text-indigo-600">

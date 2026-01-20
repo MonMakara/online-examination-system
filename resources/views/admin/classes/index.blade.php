@@ -130,7 +130,7 @@
                                         <div
                                             class="h-10 w-10 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center overflow-hidden mr-3">
                                             @if ($class->logo)
-                                                <img src="{{ asset('storage/' . $class->logo) }}"
+                                                <img src="{{ $class->logo_url }}"
                                                     class="h-full w-full object-cover">
                                             @else
                                                 <span
@@ -153,7 +153,7 @@
                                         <div
                                             class="h-8 w-8 rounded-full border-2 border-white shadow-sm overflow-hidden bg-indigo-50 flex items-center justify-center mr-2">
                                             @if ($class->teacher && $class->teacher->profile_image)
-                                                <img src="{{ asset('storage/' . $class->teacher->profile_image) }}"
+                                                <img src="{{ $class->teacher->profile_image_url }}"
                                                     class="h-full w-full object-cover">
                                             @else
                                                 <span

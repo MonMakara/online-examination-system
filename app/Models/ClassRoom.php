@@ -25,4 +25,14 @@ class ClassRoom extends Model
     {
         return $this->hasMany(Exam::class, 'class_id');
     }
+    public function getLogoUrlAttribute()
+    {
+        if ($this->logo) {
+            return str_starts_with($this->logo, 'http')
+                ? $this->logo
+                : asset('storage/' . $this->logo);
+        }
+
+        return null;
+    }
 }
