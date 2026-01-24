@@ -7,7 +7,9 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Str;
@@ -43,14 +45,14 @@ class AuthController extends Controller
         $user->otp_expires_at = Carbon::now()->addMinutes(10);
         $user->email_verified = false;
 
-        \DB::beginTransaction();
+        DB::beginTransaction();
         try {
             $user->save();
             Mail::to($user->email)->send(new OTPMail($otp));
-            \DB::commit();
+            DB::commit();
         } catch (\Exception $e) {
-            \DB::rollBack();
-            \Log::error('Registration Error: ' . $e->getMessage(), [
+            DB::rollBack();
+            Log::error('Registration Error: ' . $e->getMessage(), [
                 'exception' => $e,
                 'user_email' => $user->email
             ]);
@@ -79,8 +81,12 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        if (!$user || !$user->password || !Hash::check($request->password, $user->password)) {
-            return back()->withErrors(['email' => 'Invalid email or password']);
+        if (!$user) {
+             return back()->withErrors(['email' => 'This email is not registered in our system.']);
+        }
+
+        if (!$user->password || !Hash::check($request->password, $user->password)) {
+            return back()->withErrors(['email' => 'Incorrect password.']);
         }
 
         // Generate OTP
@@ -94,7 +100,7 @@ class AuthController extends Controller
         try {
             Mail::to($user->email)->send(new OTPMail($otp));
         } catch (\Exception $e) {
-            \Log::error('Mail Error (Login): ' . $e->getMessage(), [
+            Log::error('Mail Error (Login): ' . $e->getMessage(), [
                 'exception' => $e,
                 'user_email' => $user->email
             ]);
@@ -106,13 +112,14 @@ class AuthController extends Controller
         return redirect()->route('otp.verify');
     }
 
-    // ==========================================
     // 3. OTP VERIFICATION
-    // ==========================================
+
+    // Show OTP Form
     public function showOtpForm() {
         return view('auth.otp-verify');
     }
 
+    // Verify OTP
     public function verifyOtp(Request $request) {
         $request->validate([
             'otp' => ['required', 'numeric', 'digits:6'],
@@ -130,7 +137,6 @@ class AuthController extends Controller
             return redirect()->route('show-login')->with('error', 'User not found.');
         }
 
-        // FIX: DB column typo 'opt' -> 'otp'
         if ($user->otp == $request->otp && Carbon::now()->lessThanOrEqualTo($user->otp_expires_at)) {
             $user->update([
                 'otp' => null,
@@ -148,9 +154,7 @@ class AuthController extends Controller
         return back()->withErrors(['otp' => 'Invalid or expired code.']);
     }
 
-    // ==========================================
     // 4. GOOGLE LOGIN
-    // ==========================================
     public function redirectToGoogle()
     {
         return Socialite::driver('google')->redirect();
@@ -167,7 +171,6 @@ class AuthController extends Controller
         $user = User::where('google_id', $googleUser->id)
                     ->orWhere('email', $googleUser->email)
                     ->first();
-
         if ($user) {
             // Update Google ID if user registered with email before but now uses Google
             if (!$user->google_id) {
@@ -183,7 +186,7 @@ class AuthController extends Controller
                 'google_id' => $googleUser->id,
                 'role' => 'student',
                 'email_verified' => true,
-                'password' => null // Explicitly null so we know they are a Google user
+                'password' => null
             ]);
 
             Auth::login($newUser);
@@ -191,20 +194,19 @@ class AuthController extends Controller
         }
     }
 
-    // ==========================================
-    // 5. DELETE ACCOUNT (Fixed Logic)
-    // ==========================================
+    // 5. DELETE ACCOUN
+
+    // Show delete Account
     public function showDeleteAccount()
     {
         return view('auth.delete-account');
     }
 
+    // Delete Account
     public function destroyAccount(Request $request)
     {
         $user = Auth::user();
 
-        // FIX: Only ask for password if the user actually HAS one.
-        // Google users will skip this check.
         if ($user->password) {
             $request->validate([
                 'password' => ['required', 'current_password'],
@@ -223,9 +225,7 @@ class AuthController extends Controller
         return back()->with('error', 'Error deleting account.');
     }
 
-    // ==========================================
     // 6. FORGOT PASSWORD FLOW
-    // ==========================================
     public function showForgotPasswordForm()
     {
         return view('auth.forgot-password');
@@ -233,10 +233,13 @@ class AuthController extends Controller
 
     public function sendResetOtp(Request $request)
     {
-        $request->validate(['email' => 'required|email|exists:users,email']);
+        $request->validate(['email' => 'required|email']);
         $user = User::where('email', $request->email)->first();
 
-        // FIX: Google Users cannot reset password (they don't have one)
+        if (!$user) {
+            return back()->withErrors(['email' => "We can't find a user with that e-mail address."]);
+        }
+
         if (!$user->password) {
              return back()->withErrors(['email' => 'This account uses Google Login. Please sign in with Google.']);
         }
@@ -250,7 +253,7 @@ class AuthController extends Controller
         try {
             Mail::to($user->email)->send(new OTPMail($otp));
         } catch (\Exception $e) {
-            \Log::error('Mail Error (Reset Password): ' . $e->getMessage(), [
+            Log::error('Mail Error (Reset Password): ' . $e->getMessage(), [
                 'exception' => $e,
                 'user_email' => $user->email
             ]);
@@ -302,9 +305,7 @@ class AuthController extends Controller
         return redirect()->route('show-login')->with('success', 'Password reset successfully! Please login.');
     }
 
-    // ==========================================
     // 7. LOGOUT & HELPER
-    // ==========================================
     public function logout(Request $request)
     {
         Auth::logout();

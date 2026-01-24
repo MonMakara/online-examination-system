@@ -31,5 +31,31 @@ class AppServiceProvider extends ServiceProvider
                 )
             );
         });
+
+        // Share active exams count with student sidebar
+        view()->composer('layouts.partials.sidebars.student', function ($view) {
+            $activeExamsCount = 0;
+
+            if (auth()->check() && auth()->user()->role === 'student') {
+                $studentId = auth()->id();
+                $now = now();
+
+                $enrolledClassIds = \Illuminate\Support\Facades\DB::table('class_student')
+                    ->where('student_id', $studentId)
+                    ->pluck('class_id');
+
+                $activeExamsCount = \App\Models\Exam::whereIn('class_id', $enrolledClassIds)
+                    ->whereDoesntHave('results', function ($query) use ($studentId) {
+                        $query->where('user_id', $studentId);
+                    })
+                    ->where(function ($query) use ($now) {
+                        $query->whereNull('closed_at')
+                            ->orWhere('closed_at', '>', $now);
+                    })
+                    ->count();
+            }
+
+            $view->with('activeExamsCount', $activeExamsCount);
+        });
     }
 }

@@ -28,6 +28,10 @@ class StudentController extends Controller
         $pendingExamsCount = Exam::whereIn('class_id', $classIds)
             ->whereDoesntHave('results', function ($query) use ($student) {
                 $query->where('user_id', $student->id);
+            })
+            ->where(function ($query) {
+                $query->whereNull('closed_at')
+                    ->orWhere('closed_at', '>', now());
             })->count();
 
         return view('student.dashboard', compact('classes', 'pendingExamsCount'));
@@ -69,8 +73,10 @@ class StudentController extends Controller
 
         // Check if student is enrolled in this class
         $class = $student->enrolledClasses()
-            ->with(['teacher', 'exams' => function ($query) {
-                $query->latest();
+            ->with(['teacher', 'exams' => function ($query) use ($student) {
+                $query->latest()->with(['results' => function ($q) use ($student) {
+                    $q->where('user_id', $student->id);
+                }]);
             }])
             ->findOrFail($id);
 

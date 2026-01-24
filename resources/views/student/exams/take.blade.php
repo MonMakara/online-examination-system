@@ -4,7 +4,7 @@
 
 @section('content')
     {{-- Added exam ID and the formatted closedAt string to the x-data --}}
-    <div class="container mx-auto px-4 lg:px-8 py-8 pb-24" x-data="examTimer({{ $exam->duration * 60 }}, '{{ $examClosedAt }}', '{{ $examDueAt }}', {{ $exam->id }})">
+    <div class="container mx-auto px-4 lg:px-8 py-8 pb-24" x-data="examTimer({{ $exam->duration * 60 }}, '{{ $examClosedAt }}', '{{ $examDueAt }}', {{ $exam->id }}, {{ auth()->id() }})">
 
         {{-- Sticky Header --}}
         <div
@@ -44,12 +44,12 @@
                 @foreach ($exam->questions as $index => $question)
                     <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
                         {{-- Question Header --}}
-                        <div class="px-6 py-4 bg-gray-50/50 border-b border-gray-100 flex items-start space-x-3">
+                        <div class="px-6 py-5 bg-gray-50 border-b border-gray-100 flex items-start gap-4">
                             <span
-                                class="flex-shrink-0 w-6 h-6 bg-blue-600 text-white text-xs font-bold rounded flex items-center justify-center mt-0.5">
+                                class="flex-shrink-0 w-8 h-8 bg-white border border-blue-100 text-blue-600 text-sm font-bold rounded-lg flex items-center justify-center shadow-sm">
                                 {{ $index + 1 }}
                             </span>
-                            <div class="text-base text-gray-800 leading-relaxed whitespace-pre-wrap font-sans">
+                            <div class="text-lg font-medium text-gray-900 leading-relaxed font-sans">
                                 {{ $question->question }}
                             </div>
                         </div>
@@ -81,14 +81,14 @@
     </div>
 
     <script>
-        function examTimer(durationInSeconds, closedAtString, dueAtString, examId) {
+        function examTimer(durationInSeconds, closedAtString, dueAtString, examId, userId) {
             return {
                 timerDisplay: '00:00',
                 endTime: null,
                 interval: null,
 
                 init() {
-                    const storageKey = 'exam_end_' + examId;
+                    const storageKey = 'exam_timer_' + examId + '_' + userId;
                     const now = Date.now();
 
                     // Base duration
@@ -101,9 +101,6 @@
                             calculatedEndTime = Math.min(calculatedEndTime, closedTime);
                         }
                     }
-
-                    // Note: we do NOT force stop at due_at anymore, because the backend supports Late submissions.
-                    // Students can continue until closed_at or duration expires.
 
                     // localStorage safety
                     const savedEndTime = parseInt(localStorage.getItem(storageKey));
@@ -178,12 +175,10 @@
                     if (!form) return;
 
                     form.dataset.submitting = 'true';
-                    localStorage.removeItem('exam_end_' + examId);
+                    localStorage.removeItem('exam_timer_' + examId + '_' + userId);
                     form.submit();
                 }
             }
         }
     </script>
-
-
 @endsection

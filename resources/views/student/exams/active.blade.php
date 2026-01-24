@@ -18,19 +18,21 @@
             <button 
                 @click="currentTab = 'active'"
                 :class="currentTab === 'active' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'"
-                class="px-4 py-2 text-sm font-bold rounded-md transition-all">
+                class="px-4 py-2 text-sm font-bold rounded-md transition-all relative">
                 Active Exams
-                <span class="ml-2 bg-blue-100 text-blue-600 py-0.5 px-2 rounded-full text-xs">
-                    {{ $activeExams->count() }}
-                </span>
+                @if($activeExams->count() > 0)
+                    <span class="ml-2 bg-red-600 text-white py-0.5 px-2 rounded-full text-xs shadow-sm">
+                        {{ $activeExams->count() }}
+                    </span>
+                @endif
             </button>
             <button 
                 @click="currentTab = 'missed'"
                 :class="currentTab === 'missed' ? 'bg-white text-red-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'"
-                class="px-4 py-2 text-sm font-bold rounded-md transition-all">
+                class="px-4 py-2 text-sm font-bold rounded-md transition-all relative">
                 Missed / Expired
                 @if($missedExams->count() > 0)
-                    <span class="ml-2 bg-red-100 text-red-600 py-0.5 px-2 rounded-full text-xs">
+                    <span class="ml-2 bg-red-600 text-white py-0.5 px-2 rounded-full text-xs shadow-sm">
                         {{ $missedExams->count() }}
                     </span>
                 @endif

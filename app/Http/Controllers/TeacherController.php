@@ -6,13 +6,11 @@ use App\Models\ClassRoom;
 use App\Models\Exam;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
-
 use App\Services\ImageUploadService;
 
 class TeacherController extends Controller
 {
-    // Dashboard
+    // Dashboard page
     public function dashboard()
     {
         $teacher = auth()->user();
@@ -44,27 +42,27 @@ class TeacherController extends Controller
         return view('teacher.classes.index', compact('classes'));
     }
 
+    
+    /* Profile management */
+
     public function profile()
     {
         return view('teacher.profile', ['user' => auth()->user()]);
     }
-
-    /* Profile management */
-
     // Update profile
     public function updateProfile(Request $request, ImageUploadService $imageService)
     {
+        /** @var \App\Models\User $user */
         $user = auth()->user();
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,'.$user->id,
+            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'profile_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'current_password' => 'nullable|required_with:new_password',
             'new_password' => 'nullable|min:8|confirmed',
         ]);
 
-        // Handle Password Update
         if ($request->filled('new_password')) {
             if (! Hash::check($request->current_password, $user->password)) {
                 return back()->withErrors(['current_password' => 'Current password does not match.']);
@@ -72,7 +70,6 @@ class TeacherController extends Controller
             $user->password = Hash::make($request->new_password);
         }
 
-        // Handle Image Upload
         if ($request->hasFile('profile_image')) {
             $url = $imageService->upload($request->file('profile_image'), 'teacher_profiles');
             $user->profile_image = $url;
@@ -86,7 +83,6 @@ class TeacherController extends Controller
     }
 
     // Show page grade
-    // 1. This shows the page with all Class Cards
     public function gradesIndex()
     {
         $classes = ClassRoom::where('teacher_id', auth()->id())
@@ -96,7 +92,7 @@ class TeacherController extends Controller
         return view('teacher.grades.select_class', compact('classes'));
     }
 
-    // 2. This shows the results for the specific class clicked
+
     public function showClassGrades($id)
     {
         $class = ClassRoom::where('id', $id)

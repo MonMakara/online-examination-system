@@ -6,9 +6,23 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\ClassRoom;
+use App\Services\ImageUploadService;
+use Illuminate\Support\Str;
 
 class AdminApiController extends Controller
 {
+    public function __construct()
+    {
+        // Security: Ensure only admins can access these endpoints
+        // Alternatively, use middleware in routes: middleware('can:admin')
+        $this->middleware(function ($request, $next) {
+            if ($request->user()->role !== 'admin') {
+                return response()->json(['status' => false, 'message' => 'Unauthorized. Admin access only.'], 403);
+            }
+            return $next($request);
+        });
+    }
+
     public function dashboard()
     {
         $teachers = User::where('role', 'teacher')->count();
@@ -38,8 +52,8 @@ class AdminApiController extends Controller
         }
 
         $teachers = $query->select('id', 'name', 'email', 'profile_image')
-            ->get()
-            ->map(function($teacher) {
+            ->paginate(10) // Pagination
+            ->through(function($teacher) {
                 return [
                     'id' => $teacher->id,
                     'name' => $teacher->name,
@@ -107,8 +121,8 @@ class AdminApiController extends Controller
             $query->where('name', 'like', '%'.$request->search.'%');
         }
 
-        $classes = $query->get()
-            ->map(function($class) {
+        $classes = $query->paginate(10)
+            ->through(function($class) {
                 return [
                     'id' => $class->id,
                     'name' => $class->name,
@@ -124,7 +138,7 @@ class AdminApiController extends Controller
         ]);
     }
 
-    public function storeClass(Request $request)
+    public function storeClass(Request $request, ImageUploadService $imageService)
     {
         $request->validate([
             'name' => 'required|string|max:255',
@@ -134,9 +148,6 @@ class AdminApiController extends Controller
 
         $logoPath = null;
         if ($request->hasFile('logo')) {
-            // Using the Service would be ideal but for API simplicity/di issues we might instantiate or just use Cloudinary facade directly if easier, 
-            // but let's try to do it right. We'll resolve the service.
-            $imageService = app(\App\Services\ImageUploadService::class);
             $logoPath = $imageService->upload($request->file('logo'), 'class_logos');
         }
 
@@ -144,13 +155,13 @@ class AdminApiController extends Controller
             'name' => $request->name,
             'teacher_id' => $request->teacher_id,
             'logo' => $logoPath,
-            'code' => strtoupper(\Illuminate\Support\Str::random(6)),
+            'code' => strtoupper(Str::random(6)),
         ]);
 
         return response()->json(['status' => true, 'message' => 'Class created successfully', 'data' => $class], 201);
     }
 
-    public function updateClass(Request $request, $id)
+    public function updateClass(Request $request, $id, ImageUploadService $imageService)
     {
         $class = ClassRoom::findOrFail($id);
         $request->validate([
@@ -160,7 +171,6 @@ class AdminApiController extends Controller
         ]);
 
         if ($request->hasFile('logo')) {
-            $imageService = app(\App\Services\ImageUploadService::class);
             $logoPath = $imageService->upload($request->file('logo'), 'class_logos');
             $class->logo = $logoPath;
         }

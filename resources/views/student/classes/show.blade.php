@@ -100,9 +100,19 @@
 
                         @if($isClosed)
                              <span class="inline-flex px-3 py-1 bg-gray-100 text-gray-500 rounded-lg text-sm font-medium">Closed</span>
+                        @elseif($exam->results->isNotEmpty())
+                             <div class="flex items-center gap-3">
+                                <span class="text-sm font-bold text-green-600 flex items-center"></span>
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                    Completed
+                                </span>
+                                <a href="{{ route('student.exams.review', $exam->results->first()->id) }}" class="inline-flex items-center px-4 py-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 text-sm font-bold rounded-lg transition shadow-sm">
+                                    View Score
+                                </a>
+                             </div>
                         @else
                             <a href="{{ route('student.exams.start', $exam->id) }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-lg transition shadow-sm shadow-indigo-200">
-                                View Exam
+                                Start Exam
                                 <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                             </a>
                         @endif

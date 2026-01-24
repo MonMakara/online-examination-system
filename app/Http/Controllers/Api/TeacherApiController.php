@@ -16,7 +16,10 @@ class TeacherApiController extends Controller
         
         $stats = [
             'classes_count' => $classes->count(),
-            'students_count' => $classes->withCount('students')->get()->sum('students_count'),
+            // Count total enrollments directly from database without loading models
+            'students_count' => \App\Models\ClassRoom::where('teacher_id', $teacher->id)
+                ->join('class_student', 'class_rooms.id', '=', 'class_student.class_id')
+                ->count(),
             'exam_count' => \App\Models\Exam::where('teacher_id', $teacher->id)->count(),
         ];
 

@@ -99,131 +99,99 @@
             </a>
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">
-                                Class Name
-                            </th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">
-                                Assigned Teacher
-                            </th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">
-                                Join Code
-                            </th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">
-                                Students
-                            </th>
-                            <th class="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                Actions
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-100">
-                        @forelse ($classes as $class)
-                            <tr class="hover:bg-gray-50/50 transition-colors group">
-                                {{-- Class Info with Logo --}}
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="flex items-center">
-                                        <div
-                                            class="h-10 w-10 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center overflow-hidden mr-3">
-                                            @if ($class->logo)
-                                                <img src="{{ $class->logo_url }}"
-                                                    class="h-full w-full object-cover">
-                                            @else
-                                                <span
-                                                    class="text-gray-400 font-bold text-lg">{{ substr($class->name, 0, 1) }}</span>
-                                            @endif
-                                        </div>
-                                        <div>
-                                            <div
-                                                class="text-sm font-black text-gray-900 group-hover:text-indigo-600 transition">
-                                                {{ $class->name }}</div>
-                                            <div class="text-[10px] text-gray-400 uppercase tracking-widest font-bold">ID:
-                                                #{{ $class->id }}</div>
-                                        </div>
-                                    </div>
-                                </td>
-
-                                {{-- Teacher Info --}}
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="flex items-center">
-                                        <div
-                                            class="h-8 w-8 rounded-full border-2 border-white shadow-sm overflow-hidden bg-indigo-50 flex items-center justify-center mr-2">
-                                            @if ($class->teacher && $class->teacher->profile_image)
-                                                <img src="{{ $class->teacher->profile_image_url }}"
-                                                    class="h-full w-full object-cover">
-                                            @else
-                                                <span
-                                                    class="text-indigo-600 text-[10px] font-bold">{{ strtoupper(substr($class->teacher->name ?? '?', 0, 1)) }}</span>
-                                            @endif
-                                        </div>
-                                        <div class="text-sm text-gray-600 font-medium">
-                                            {{ $class->teacher->name ?? 'Unassigned' }}</div>
-                                    </div>
-                                </td>
-
-                                {{-- Join Code --}}
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span
-                                        class="font-mono bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg text-xs font-black border border-indigo-100 tracking-wider">
-                                        {{ $class->code }}
-                                    </span>
-                                </td>
-
-                                {{-- Students Count Badge --}}
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span
-                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold {{ $class->students_count > 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-500' }}">
-                                        {{ $class->students_count }} Students
-                                    </span>
-                                </td>
-                                <td class="px-8 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    {{-- Use flex and items-center here to keep them in a row --}}
-                                    <div class="flex justify-end items-center space-x-2">
-
-                                        {{-- Edit Button --}}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            @forelse ($classes as $class)
+                <a href="{{ route('admin.classes.show', $class->id) }}" class="block group">
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-200 h-full flex flex-col">
+                        <div class="p-5 flex-1">
+                            <div class="flex items-start justify-between">
+                                <div class="h-12 w-12 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center overflow-hidden">
+                                     @if ($class->logo)
+                                        <img src="{{ $class->logo_url }}" class="h-full w-full object-cover">
+                                    @else
+                                        <span class="text-indigo-600 font-bold text-xl">{{ substr($class->name, 0, 1) }}</span>
+                                    @endif
+                                </div>
+                                <div class="flex items-center space-x-1">
+                                     {{-- Edit Button --}}
+                                    <object>
                                         <a href="{{ route('admin.classes.edit', $class->id) }}"
-                                            class="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition bg-white border border-gray-100 shadow-sm"
+                                            class="p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition"
                                             title="Edit Class">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                             </svg>
                                         </a>
-
+                                    </object>
+                                    
+                                     {{-- Delete Button --}}
+                                    <object>
                                         <form action="{{ route('admin.classes.destroy', $class->id) }}" method="POST"
-                                            class="flex items-center m-0"
+                                            class="m-0"
                                             onsubmit="return confirm('Are you sure you want to delete this class?')">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit"
-                                                class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition bg-white border border-gray-100 shadow-sm"
+                                                class="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
                                                 title="Delete Class">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                 </svg>
                                             </button>
                                         </form>
+                                    </object>
+                                </div>
+                            </div>
+                            
+                            <h3 class="mt-4 text-lg font-bold text-gray-900 group-hover:text-indigo-600 transition-colors line-clamp-1" title="{{ $class->name }}">
+                                {{ $class->name }}
+                            </h3>
+                            
+                            <div class="mt-2 flex items-center text-sm text-gray-500">
+                                <span class="font-mono bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-xs border border-gray-200 mr-2">
+                                    {{ $class->code }}
+                                </span>
+                                <span>ID: #{{ $class->id }}</span>
+                            </div>
 
+                            <div class="mt-4 pt-4 border-t border-gray-50 flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="h-6 w-6 rounded-full bg-gray-200 overflow-hidden mr-2">
+                                        @if ($class->teacher && $class->teacher->profile_image)
+                                            <img src="{{ $class->teacher->profile_image_url }}" class="h-full w-full object-cover">
+                                        @else
+                                            <div class="h-full w-full flex items-center justify-center bg-indigo-100 text-indigo-600 text-[10px] font-bold">
+                                                {{ strtoupper(substr($class->teacher->name ?? '?', 0, 1)) }}
+                                            </div>
+                                        @endif
                                     </div>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="4" class="px-8 py-12 text-center">
-                                    <p class="text-gray-400 font-medium">No classes found matching your criteria.</p>
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+                                    <span class="text-sm font-medium text-gray-700 truncate max-w-[100px]" title="{{ $class->teacher->name ?? 'Unassigned' }}">
+                                        {{ $class->teacher->name ?? 'Unassigned' }}
+                                    </span>
+                                </div>
+                                
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold {{ $class->students_count > 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-500' }}">
+                                    {{ $class->students_count }} Students
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            @empty
+                <div class="col-span-full py-12 text-center bg-white rounded-xl border border-gray-200 border-dashed">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    </svg>
+                    <h3 class="mt-2 text-sm font-semibold text-gray-900">No classes found</h3>
+                    <p class="mt-1 text-sm text-gray-500">Get started by creating a new class.</p>
+                    <div class="mt-6">
+                        <a href="{{ route('admin.classes.create') }}" class="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                            Create Class
+                        </a>
+                    </div>
+                </div>
+            @endforelse
+        </div>
 
             <div class="px-6 py-4 bg-gray-50 border-t border-gray-100">
                 <div class="flex flex-col md:flex-row justify-between items-center gap-4">

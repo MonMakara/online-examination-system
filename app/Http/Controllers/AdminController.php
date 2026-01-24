@@ -6,9 +6,7 @@ use App\Models\ClassRoom;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-
 use App\Services\ImageUploadService;
 
 class AdminController extends Controller
@@ -17,7 +15,9 @@ class AdminController extends Controller
     public function dashboard()
     {
         $teachers = User::where('role', 'teacher')->get();
-        $classes = ClassRoom::with('teacher')->get();
+        // Optimization: Don't load all classes if just displaying a list. Use pagination or limit.
+        // If this is for a "Recent Classes" widget, take(5). If for stats, use count().
+        $classes = ClassRoom::with('teacher')->latest()->take(5)->get();
         $studentCount = User::where('role', 'student')->count();
 
         return view('admin.dashboard', compact('teachers', 'classes', 'studentCount'));
@@ -30,7 +30,6 @@ class AdminController extends Controller
     {
         $query = User::where('role', 'teacher')->with('managedClasses');
 
-        // If search term exists, filter by name or email
         if ($request->has('search') && $request->search != '') {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -41,7 +40,6 @@ class AdminController extends Controller
 
         $teachers = $query->paginate(10);
 
-        // This ensures your pagination links keep the search term attached
         $teachers->appends(['search' => $request->search]);
 
         return view('admin.teachers.index', compact('teachers'));
@@ -59,7 +57,7 @@ class AdminController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:6',
+            'password' => 'required|min:6|confirmed',
         ]);
 
         User::create([
@@ -72,7 +70,7 @@ class AdminController extends Controller
         return redirect()->route('admin.teachers.index')->with('success', 'Teacher account created successfully!');
     }
 
-    // Show form to update teacher
+    // Show form to edit teacher
     public function editTeachers($id)
     {
 
@@ -113,22 +111,36 @@ class AdminController extends Controller
         return redirect()->route('admin.teachers.index')->with('warning', 'Teacher has been removed from the system.');
     }
 
+
     /* Classes management */
 
     // Show classes page
     public function indexClasses(Request $request)
     {
-
         $query = ClassRoom::with('teacher')->withCount('students');
 
         if ($request->filled('search')) {
             $query->where('name', 'like', '%'.$request->search.'%');
         }
 
-        // withQueryString() keeps the ?search=... in the pagination links
         $classes = $query->paginate(10)->withQueryString();
 
         return view('admin.classes.index', compact('classes'));
+    }
+
+    // Show single class
+    public function showClasses($id) {
+        $class = ClassRoom::with('teacher')->findOrFail($id);
+        $students = $class->students()->paginate(10);
+        
+        // Fetch exams with their results
+        $exams = \App\Models\Exam::where('class_id', $id)
+            ->withCount('questions')
+            ->with(['results.student']) // Eager load results and the student who took it
+            ->latest()
+            ->get();
+
+        return view('admin.classes.show', compact('class', 'students', 'exams'));
     }
 
     // Show form to create class
@@ -143,7 +155,6 @@ class AdminController extends Controller
     // Store class
     public function storeClasses(Request $request, ImageUploadService $imageService)
     {
-        // 1. Validation
         $request->validate([
             'name' => 'required|string|max:255',
             'teacher_id' => 'required|exists:users,id',
@@ -152,13 +163,10 @@ class AdminController extends Controller
 
         $logoPath = null;
 
-        // 2. Logic to store the file
         if ($request->hasFile('logo')) {
-            // Upload to Cloudinary using Service
             $logoPath = $imageService->upload($request->file('logo'), 'class_logos');
         }
 
-        // 3. Create the class with the logo path
         ClassRoom::create([
             'name' => $request->name,
             'teacher_id' => $request->teacher_id,
@@ -183,21 +191,17 @@ class AdminController extends Controller
     {
         $class = ClassRoom::findOrFail($id);
 
-        // 1. Validation
         $request->validate([
             'name' => 'required|string|max:255',
             'teacher_id' => 'required|exists:users,id',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,svg|max:2048', // Added logo validation
         ]);
 
-        // 2. Handle Logo Upload
         if ($request->hasFile('logo')) {
-            // Upload new logo to Cloudinary
             $logoPath = $imageService->upload($request->file('logo'), 'class_logos');
             $class->logo = $logoPath;
         }
 
-        // 3. Update the record
         $class->update([
             'name' => $request->name,
             'teacher_id' => $request->teacher_id,
@@ -214,6 +218,32 @@ class AdminController extends Controller
         $class->delete();
 
         return redirect()->route('admin.classes.index')->with('warning', 'Class deleted successfully');
+    }
+
+    // Show students page
+    public function indexStudents(Request $request) {
+        $query = User::where('role', 'student')->withCount('enrolledClasses');
+
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        $students = $query->paginate(10)->withQueryString();
+
+        return view('admin.students.index', compact('students'));
+    }
+
+    // Show single student
+    public function showStudent($id) {
+        $student = User::where('role', 'student')
+            ->with(['enrolledClasses', 'results.exam.classRoom'])
+            ->findOrFail($id);
+            
+        return view('admin.students.show', compact('student'));
     }
 
     // Show setting
@@ -237,7 +267,6 @@ class AdminController extends Controller
         ]);
 
         if ($request->hasFile('profile_image')) {
-            // Upload to Cloudinary
             $path = $imageService->upload($request->file('profile_image'), 'admin_profiles');
             $user->profile_image = $path;
         }

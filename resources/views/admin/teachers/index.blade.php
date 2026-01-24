@@ -3,7 +3,6 @@
 
 @section('content')
     <div class="px-4 lg:px-8 py-2">
-        {{-- Flash Messages (Keep your existing script for auto-hide) --}}
         <div class="space-y-4 mb-6">
             @if (session('success'))
                 <div role="alert"
@@ -41,7 +40,6 @@
             @endif
         </div>
 
-        {{-- Header & Search --}}
         <div class="mb-8 flex flex-col md:flex-row items-center justify-between gap-4">
             <div class="relative w-full md:w-96">
                 <form action="{{ route('admin.teachers.index') }}" method="GET">
@@ -64,8 +62,7 @@
                 Add New Teacher
             </a>
         </div>
-
-        {{-- Table Card --}}
+        
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-100">
@@ -86,7 +83,6 @@
                             <tr class="hover:bg-gray-50/50 transition-colors group">
                                 <td class="px-8 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
-                                        {{-- Profile Photo Logic --}}
                                         <div
                                             class="h-10 w-10 rounded-full border-2 border-white shadow-sm bg-indigo-50 flex items-center justify-center overflow-hidden flex-shrink-0">
                                             @if ($teacher->profile_image)
@@ -121,7 +117,6 @@
                                 <td class="px-8 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <div class="flex justify-end items-center space-x-2">
 
-                                        {{-- Edit Button --}}
                                         <a href="{{ route('admin.teachers.edit', $teacher->id) }}"
                                             class="inline-flex items-center justify-center w-8 h-8 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition bg-white border border-gray-100 shadow-sm">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -130,8 +125,6 @@
                                             </svg>
                                         </a>
 
-                                        {{-- Delete Form --}}
-                                        {{-- Added 'inline-block' and 'm-0' to ensure strict alignment --}}
                                         <form action="{{ route('admin.teachers.destroy', $teacher->id) }}" method="POST"
                                             onsubmit="return confirm('Delete this teacher?')" class="inline-block m-0">
                                             @csrf

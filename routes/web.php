@@ -21,16 +21,17 @@ Route::controller(AuthController::class)->group(function () {
     Route::get('/verify-otp', [AuthController::class, 'showOtpForm'])->name('otp.verify');
     Route::post('/verify-otp', [AuthController::class, 'verifyOtp'])->name('otp.verify.submit');
 
-    // Forgot Password Flow
+    // Forgot Password
     Route::get('/forgot-password', [AuthController::class, 'showForgotPasswordForm'])->name('password.request');
     Route::post('/forgot-password/send', [AuthController::class, 'sendResetOtp'])->name('password.email');
-
     Route::get('/forgot-password/verify', [AuthController::class, 'showResetOtpForm'])->name('password.otp.form');
     Route::post('/forgot-password/verify', [AuthController::class, 'verifyResetOtp'])->name('password.otp.verify');
 
+    // Reset password
     Route::get('/reset-password', [AuthController::class, 'showNewPasswordForm'])->name('password.reset.form');
     Route::post('/reset-password', [AuthController::class, 'updatePassword'])->name('password.update');
 
+    // Google Auth
     Route::get('auth/google', [AuthController::class, 'redirectToGoogle'])->name('auth.google');
     Route::get('auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
 
@@ -39,7 +40,6 @@ Route::controller(AuthController::class)->group(function () {
     Route::post('/logout', 'logout')->name('logout');
 
     Route::get('/account/delete', [AuthController::class, 'showDeleteAccount'])->name('account.delete.show');
-
     Route::delete('/account/delete', [AuthController::class, 'destroyAccount'])->name('account.delete');
 });
 
@@ -60,10 +60,14 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     // Classes management
     Route::get('/classes', [AdminController::class, 'indexClasses'])->name('classes.index');
     Route::get('/classes/create', [AdminController::class, 'createClasses'])->name('classes.create');
+    Route::get('/classes/{id}', [AdminController::class, 'showClasses'])->name('classes.show');
     Route::post('/classes', [AdminController::class, 'storeClasses'])->name('classes.store');
     Route::get('/classes/edit/{id}', [AdminController::class, 'editClasses'])->name('classes.edit');
     Route::patch('/classes/update/{id}', [AdminController::class, 'updateClasses'])->name('classes.update');
     Route::delete('/classes/delete/{id}', [AdminController::class, 'destroyClasses'])->name('classes.destroy');
+
+    Route::get('/students', [AdminController::class, 'indexStudents'])->name('students.index');
+    Route::get('/students/{id}', [AdminController::class, 'showStudent'])->name('students.show');
 
     // Profile setting
     Route::get('/profile', [AdminController::class, 'profile'])->name('profile');
@@ -81,7 +85,7 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
     Route::get('/classes/{id}', [ClassroomController::class, 'showManageClass'])->name('classes.show');
 
     // Exams management
-    Route::resource('exams', ExamController::class);
+    Route::get('/exams', [ExamController::class, 'index'])->name('exams.index');
     Route::get('/exams/create', [ExamController::class, 'createExams'])->name('exams.create');
     Route::post('/exams/store', [ExamController::class, 'storeExams'])->name('exams.store');
     Route::get('/exams/edit/{id}', [ExamController::class, 'editExams'])->name('exams.edit');
@@ -106,6 +110,7 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
 
 // Student Routes
 Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')->group(function () {
+
     // Dashboard page
     Route::get('/dashboard', [StudentController::class, 'dashboard'])->name('dashboard');
     Route::post('/join-class', [StudentController::class, 'joinClass'])->name('join.class');

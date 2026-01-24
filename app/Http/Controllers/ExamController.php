@@ -11,7 +11,6 @@ class ExamController extends Controller
     // Page exam for teacher
     public function index()
     {
-        // Get exams where the classroom's teacher is the current user
         $exams = Exam::whereHas('classRoom', function ($query) {
             $query->where('teacher_id', auth()->id());
         })

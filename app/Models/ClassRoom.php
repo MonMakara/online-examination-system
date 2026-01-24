@@ -18,7 +18,7 @@ class ClassRoom extends Model
 
     public function students()
     {
-        return $this->belongsToMany(User::class, 'class_student', 'class_id', 'student_id');
+        return $this->belongsToMany(User::class, 'class_student', 'class_id', 'student_id')->withTimestamps();
     }
 
     public function exams()

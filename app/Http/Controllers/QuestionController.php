@@ -20,7 +20,6 @@ class QuestionController extends Controller
     // Store questions
     public function storeQuestions(Request $request, $examId)
     {
-
         $request->validate([
             'question' => ['required', 'string'],
             'option_a' => ['required', 'string'],
@@ -30,7 +29,7 @@ class QuestionController extends Controller
             'correct_option' => ['required', 'string', 'in:a,b,c,d'],
         ]);
 
-        $questions = new Question;
+        $questions = new Question();
 
         $questions->exam_id = $examId;
         $questions->question = $request->question;
@@ -44,11 +43,12 @@ class QuestionController extends Controller
 
         return redirect()->back()->with('success', 'Question added successfully!');
     }
+    
     // Show edit form
     public function editQuestions($id)
     {
         $question = Question::findOrFail($id);
-        $exam = $question->exam; // Relationship assumed
+        $exam = $question->exam;
         return view('teacher.exams.edit_question', compact('question', 'exam'));
     }
 

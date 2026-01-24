@@ -8,6 +8,7 @@ use App\Models\ClassRoom;
 use App\Models\Exam;
 use App\Models\Result;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class StudentApiController extends Controller
 {
@@ -33,7 +34,7 @@ class StudentApiController extends Controller
     public function classes(Request $request)
     {
         // Get classes the student is enrolled within
-        $classes = $request->user()->classRooms()->with('teacher:id,name,profile_image')->get()->map(function($class) {
+        $classes = $request->user()->enrolledClasses()->with('teacher:id,name,profile_image')->get()->map(function($class) {
             return [
                 'id' => $class->id,
                 'name' => $class->name,
@@ -55,7 +56,7 @@ class StudentApiController extends Controller
     public function exams(Request $request)
     {
         $user = $request->user();
-        $classIds = $user->classRooms()->pluck('class_rooms.id');
+        $classIds = $user->enrolledClasses()->pluck('class_rooms.id');
 
         // Fetch exams from these classes that student hasn't taken yet
         $exams = Exam::whereIn('class_id', $classIds)
@@ -71,7 +72,7 @@ class StudentApiController extends Controller
                     'title' => $exam->title,
                     'class_name' => $exam->classRoom->name,
                     'class_logo_url' => $exam->classRoom->logo_url,
-                    'start_date' => $exam->created_at->format('Y-m-d H:i'),
+                    'start_date' => $exam->created_at->toIso8601String(),
                 ];
             });
 
@@ -91,7 +92,7 @@ class StudentApiController extends Controller
                     'exam_title' => $result->exam->title,
                     'class_name' => $result->exam->classRoom->name,
                     'score' => $result->score,
-                    'date' => $result->created_at->format('Y-m-d'),
+                    'date' => $result->created_at->toIso8601String(),
                 ];
             });
 
@@ -137,15 +138,22 @@ class StudentApiController extends Controller
             return response()->json(['status' => false, 'message' => 'You have already submitted this exam.'], 409);
         }
 
-        $request->validate(['answers' => 'required|array']);
+        $request->validate([
+            'answers' => 'required|array',
+            'answers.*' => 'nullable|string', // validate values
+        ]);
+        
         $studentAnswers = $request->input('answers');
         $correctCount = 0;
         $totalQuestions = $exam->questions->count();
 
-        \DB::beginTransaction();
+        DB::beginTransaction();
         try {
             foreach ($exam->questions as $question) {
-                $selectedOption = $studentAnswers[$question->id] ?? null;
+                // Ensure we handle cases where the question ID might not be in the answers array
+                $selectedOption = array_key_exists($question->id, $studentAnswers) 
+                    ? $studentAnswers[$question->id] 
+                    : null;
                 
                 \App\Models\StudentAnswer::create([
                     'user_id' => $user->id,
@@ -167,9 +175,9 @@ class StudentApiController extends Controller
                 'score' => round($finalScore),
             ]);
 
-            \DB::commit();
+            DB::commit();
         } catch (\Exception $e) {
-            \DB::rollBack();
+            DB::rollBack();
             return response()->json(['status' => false, 'message' => 'Error submitting exam: ' . $e->getMessage()], 500);
         }
 

@@ -22,7 +22,7 @@ class AuthApiController extends Controller
             'password' => ['required', 'min:6', 'confirmed'],
         ]);
 
-        $otp = rand(100000, 999999);
+        $otp = random_int(100000, 999999);
         
         $user = new User;
         $user->name = $request->name;
@@ -88,7 +88,7 @@ class AuthApiController extends Controller
             return response()->json(['status' => false, 'message' => 'This account uses social login.'], 400);
         }
 
-        $otp = rand(100000, 999999);
+        $otp = random_int(100000, 999999);
         $user->update([
             'otp' => $otp,
             'otp_expires_at' => Carbon::now()->addMinutes(10)
@@ -182,7 +182,7 @@ class AuthApiController extends Controller
         ]);
     }
 
-    public function updateProfile(Request $request)
+    public function updateProfile(Request $request, \App\Services\ImageUploadService $imageService)
     {
         $user = $request->user();
         
@@ -208,7 +208,6 @@ class AuthApiController extends Controller
                 default => 'student_profiles'
             };
             
-            $imageService = app(\App\Services\ImageUploadService::class);
             $url = $imageService->upload($request->file('profile_image'), $folder);
             $user->profile_image = $url;
         }
