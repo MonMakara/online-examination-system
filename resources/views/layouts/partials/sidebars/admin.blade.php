@@ -69,7 +69,15 @@
 
         <form action="{{ route('logout') }}" method="POST">
             @csrf
-            <button onclick="return confirm('Are you sure you want to logout?')" type="submit"
+            <button type="button" 
+                @click="$dispatch('open-confirm-modal', { 
+                    action: '{{ route('logout') }}', 
+                    method: 'POST', 
+                    title: 'Sign Out', 
+                    message: 'Are you sure you want to sign out?', 
+                    cta: 'Sign Out',
+                    color: 'red'
+                })"
                 class="w-full flex items-center px-4 py-2.5 text-xs font-black uppercase tracking-widest text-red-500 hover:bg-red-50 rounded-xl transition-colors">
                 <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

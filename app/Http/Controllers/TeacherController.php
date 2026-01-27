@@ -18,7 +18,7 @@ class TeacherController extends Controller
         $classes = ClassRoom::where('teacher_id', $teacher->id)
             ->with(['students'])
             ->withCount(['students', 'exams'])
-            ->paginate(5);
+            ->paginate(10);
 
         $totalStudent = ClassRoom::where('teacher_id', $teacher->id)
             ->withCount('students')
@@ -37,7 +37,7 @@ class TeacherController extends Controller
     {
         $teacher = auth()->user();
 
-        $classes = ClassRoom::where('teacher_id', $teacher->id)->withCount('students')->get();
+        $classes = ClassRoom::where('teacher_id', $teacher->id)->withCount('students')->paginate(10);
 
         return view('teacher.classes.index', compact('classes'));
     }
@@ -57,10 +57,10 @@ class TeacherController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+
             'profile_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'current_password' => 'nullable|required_with:new_password',
-            'new_password' => 'nullable|min:8|confirmed',
+            'new_password' => 'nullable|min:6|confirmed',
         ]);
 
         if ($request->filled('new_password')) {
@@ -76,7 +76,7 @@ class TeacherController extends Controller
         }
 
         $user->name = $request->name;
-        $user->email = $request->email;
+
         $user->save();
 
         return back()->with('success', 'Profile updated successfully!');
@@ -87,7 +87,7 @@ class TeacherController extends Controller
     {
         $classes = ClassRoom::where('teacher_id', auth()->id())
             ->withCount(['students', 'exams'])
-            ->get();
+            ->paginate(10);
 
         return view('teacher.grades.select_class', compact('classes'));
     }
@@ -100,10 +100,26 @@ class TeacherController extends Controller
             ->firstOrFail();
 
         $exams = Exam::where('class_id', $id)
-            ->with(['results.student', 'classRoom'])
+            ->with(['classRoom'])
+            ->withCount('results') // count results instead of loading them
+            ->withAvg('results', 'score') // Get average directly via query
             ->latest()
-            ->get();
+            ->paginate(10);
 
         return view('teacher.grades.index', compact('exams', 'class'));
+    }
+
+    public function showExamGrades($id)
+    {
+        $exam = Exam::with(['classRoom', 'results.student'])
+            ->withCount('questions')
+            ->findOrFail($id);
+            
+        // Check ownership/permission (optional but recommended)
+        if($exam->classRoom->teacher_id !== auth()->id()) {
+            abort(403);
+        }
+
+        return view('teacher.grades.show', compact('exam'));
     }
 }

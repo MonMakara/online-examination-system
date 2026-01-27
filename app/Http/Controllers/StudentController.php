@@ -21,9 +21,9 @@ class StudentController extends Controller
     {
         $student = Auth::user();
 
-        $classes = $student->enrolledClasses()->with('teacher')->get();
+        $classes = $student->enrolledClasses()->with('teacher')->paginate(10);
 
-        $classIds = $classes->pluck('id');
+        $classIds = collect($classes->items())->pluck('id');
 
         $pendingExamsCount = Exam::whereIn('class_id', $classIds)
             ->whereDoesntHave('results', function ($query) use ($student) {
@@ -94,10 +94,10 @@ class StudentController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+
             'profile_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'current_password' => 'nullable|required_with:new_password',
-            'new_password' => 'nullable|min:8|confirmed',
+            'new_password' => 'nullable|min:6|confirmed',
         ]);
 
         // Password Update Logic
@@ -115,7 +115,7 @@ class StudentController extends Controller
         }
 
         $user->name = $request->name;
-        $user->email = $request->email;
+
         $user->save();
 
         return back()->with('success', 'Your profile has been updated successfully!');
@@ -147,13 +147,13 @@ class StudentController extends Controller
                     ->orWhere('closed_at', '>', $now);
             })
             ->latest()
-            ->get();
+            ->paginate(10, ['*'], 'active_page');
 
         // 4. Fetch Missed Exams (Close date has passed)
         $missedExams = (clone $baseQuery)
             ->where('closed_at', '<=', $now)
             ->latest()
-            ->get();
+            ->paginate(10, ['*'], 'missed_page');
 
         return view('student.exams.active', compact('activeExams', 'missedExams'));
     }
@@ -262,7 +262,7 @@ class StudentController extends Controller
         $results = Result::where('user_id', auth()->id())
             ->with(['exam.classRoom.teacher'])
             ->latest()
-            ->get();
+            ->paginate(10);
 
         return view('student.results.index', compact('results'));
     }

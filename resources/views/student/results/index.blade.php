@@ -118,6 +118,11 @@
                     </tbody>
                 </table>
             </div>
+            </div>
+        </div>
+        
+        <div class="mt-8">
+            {{ $results->links() }}
         </div>
     </div>
 @endsection

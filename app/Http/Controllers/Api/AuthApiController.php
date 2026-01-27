@@ -188,7 +188,7 @@ class AuthApiController extends Controller
         
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,'.$user->id,
+
             'profile_image' => 'nullable|image|max:2048',
             'current_password' => 'nullable|required_with:new_password',
             'new_password' => 'nullable|min:6|confirmed',
@@ -213,7 +213,7 @@ class AuthApiController extends Controller
         }
 
         $user->name = $request->name;
-        $user->email = $request->email;
+
         $user->save();
 
         return response()->json([

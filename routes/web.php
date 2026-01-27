@@ -106,6 +106,7 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
     // Student Grades/Reports
     Route::get('/teacher/grades', [TeacherController::class, 'gradesIndex'])->name('grades.index');
     Route::get('/teacher/grades/class/{id}', [TeacherController::class, 'showClassGrades'])->name('grades.class');
+    Route::get('/teacher/grades/exam/{id}', [TeacherController::class, 'showExamGrades'])->name('grades.exam');
 });
 
 // Student Routes

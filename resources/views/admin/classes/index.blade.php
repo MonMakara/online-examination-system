@@ -102,53 +102,55 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             @forelse ($classes as $class)
                 <a href="{{ route('admin.classes.show', $class->id) }}" class="block group">
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-200 h-full flex flex-col">
+                    <div
+                        class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-200 h-full flex flex-col">
                         <div class="p-5 flex-1">
                             <div class="flex items-start justify-between">
-                                <div class="h-12 w-12 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center overflow-hidden">
-                                     @if ($class->logo)
+                                <div
+                                    class="h-12 w-12 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center overflow-hidden">
+                                    @if ($class->logo)
                                         <img src="{{ $class->logo_url }}" class="h-full w-full object-cover">
                                     @else
-                                        <span class="text-indigo-600 font-bold text-xl">{{ substr($class->name, 0, 1) }}</span>
+                                        <span
+                                            class="text-indigo-600 font-bold text-xl">{{ substr($class->name, 0, 1) }}</span>
                                     @endif
                                 </div>
                                 <div class="flex items-center space-x-1">
-                                     {{-- Edit Button --}}
+                                    {{-- Edit Button --}}
                                     <object>
                                         <a href="{{ route('admin.classes.edit', $class->id) }}"
                                             class="p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition"
                                             title="Edit Class">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                             </svg>
                                         </a>
                                     </object>
-                                    
-                                     {{-- Delete Button --}}
+
+                                    {{-- Delete Button --}}
                                     <object>
-                                        <form action="{{ route('admin.classes.destroy', $class->id) }}" method="POST"
-                                            class="m-0"
-                                            onsubmit="return confirm('Are you sure you want to delete this class?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit"
-                                                class="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
-                                                title="Delete Class">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                </svg>
-                                            </button>
-                                        </form>
+                                        <button type="button"
+                                            @click.stop.prevent="$dispatch('open-delete-modal', { action: '{{ route('admin.classes.destroy', $class->id) }}', title: 'Delete Class', message: 'Are you sure you want to delete {{ $class->name }}?' })"
+                                            class="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
+                                            title="Delete Class">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                        </button>
                                     </object>
                                 </div>
                             </div>
-                            
-                            <h3 class="mt-4 text-lg font-bold text-gray-900 group-hover:text-indigo-600 transition-colors line-clamp-1" title="{{ $class->name }}">
+
+                            <h3 class="mt-4 text-lg font-bold text-gray-900 group-hover:text-indigo-600 transition-colors line-clamp-1"
+                                title="{{ $class->name }}">
                                 {{ $class->name }}
                             </h3>
-                            
+
                             <div class="mt-2 flex items-center text-sm text-gray-500">
-                                <span class="font-mono bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-xs border border-gray-200 mr-2">
+                                <span
+                                    class="font-mono bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-xs border border-gray-200 mr-2">
                                     {{ $class->code }}
                                 </span>
                                 <span>ID: #{{ $class->id }}</span>
@@ -158,19 +160,23 @@
                                 <div class="flex items-center">
                                     <div class="h-6 w-6 rounded-full bg-gray-200 overflow-hidden mr-2">
                                         @if ($class->teacher && $class->teacher->profile_image)
-                                            <img src="{{ $class->teacher->profile_image_url }}" class="h-full w-full object-cover">
+                                            <img src="{{ $class->teacher->profile_image_url }}"
+                                                class="h-full w-full object-cover">
                                         @else
-                                            <div class="h-full w-full flex items-center justify-center bg-indigo-100 text-indigo-600 text-[10px] font-bold">
+                                            <div
+                                                class="h-full w-full flex items-center justify-center bg-indigo-100 text-indigo-600 text-[10px] font-bold">
                                                 {{ strtoupper(substr($class->teacher->name ?? '?', 0, 1)) }}
                                             </div>
                                         @endif
                                     </div>
-                                    <span class="text-sm font-medium text-gray-700 truncate max-w-[100px]" title="{{ $class->teacher->name ?? 'Unassigned' }}">
+                                    <span class="text-sm font-medium text-gray-700 truncate max-w-[100px]"
+                                        title="{{ $class->teacher->name ?? 'Unassigned' }}">
                                         {{ $class->teacher->name ?? 'Unassigned' }}
                                     </span>
                                 </div>
-                                
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold {{ $class->students_count > 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-500' }}">
+
+                                <span
+                                    class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold {{ $class->students_count > 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-500' }}">
                                     {{ $class->students_count }} Students
                                 </span>
                             </div>
@@ -179,13 +185,17 @@
                 </a>
             @empty
                 <div class="col-span-full py-12 text-center bg-white rounded-xl border border-gray-200 border-dashed">
-                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                        <path vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor" aria-hidden="true">
+                        <path vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                     </svg>
                     <h3 class="mt-2 text-sm font-semibold text-gray-900">No classes found</h3>
                     <p class="mt-1 text-sm text-gray-500">Get started by creating a new class.</p>
                     <div class="mt-6">
-                        <a href="{{ route('admin.classes.create') }}" class="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                        <a href="{{ route('admin.classes.create') }}"
+                            class="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
                             Create Class
                         </a>
                     </div>
@@ -193,34 +203,10 @@
             @endforelse
         </div>
 
-            <div class="px-6 py-4 bg-gray-50 border-t border-gray-100">
-                <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-                    <div class="text-sm text-gray-600">
-                        Showing <span class="font-medium">{{ $classes->firstItem() ?? 0 }}</span>
-                        to <span class="font-medium">{{ $classes->lastItem() ?? 0 }}</span>
-                        of <span class="font-medium">{{ $classes->total() }}</span> results
-                    </div>
-
-                    <div class="flex space-x-2">
-                        @if ($classes->onFirstPage())
-                            <span
-                                class="px-3 py-1 border border-gray-300 rounded bg-white text-gray-400 cursor-not-allowed text-sm">Previous</span>
-                        @else
-                            <a href="{{ $classes->previousPageUrl() }}"
-                                class="px-3 py-1 border border-gray-300 rounded bg-white text-gray-700 hover:bg-gray-50 text-sm">Previous</a>
-                        @endif
-
-                        @if ($classes->hasMorePages())
-                            <a href="{{ $classes->nextPageUrl() }}"
-                                class="px-3 py-1 border border-gray-300 rounded bg-white text-gray-700 hover:bg-gray-50 text-sm">Next</a>
-                        @else
-                            <span
-                                class="px-3 py-1 border border-gray-300 rounded bg-white text-gray-400 cursor-not-allowed text-sm">Next</span>
-                        @endif
-                    </div>
-                </div>
-            </div>
+        <div class="mt-8 flex justify-center">
+            {{ $classes->appends(request()->except('page'))->links() }}
         </div>
+    </div>
     </div>
 @endsection
 

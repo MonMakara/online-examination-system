@@ -6,6 +6,14 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <title>Student - @yield('title')</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif !important; }
+    </style>
 </head>
 <body class="bg-gray-100 flex h-screen overflow-hidden font-sans" x-data="{ sidebarOpen: false }">
 
@@ -90,7 +98,16 @@
                     {{-- 3. Sign Out --}}
                     <form action="{{ route('logout') }}" method="POST">
                         @csrf
-                        <button onclick="return confirm('Are you sure you want to logout?')" type="submit" class="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition">
+                        <button type="button" 
+                             @click="$dispatch('open-confirm-modal', { 
+                                action: '{{ route('logout') }}', 
+                                method: 'POST', 
+                                title: 'Sign Out', 
+                                message: 'Are you sure you want to sign out?', 
+                                cta: 'Sign Out',
+                                color: 'red'
+                            })"
+                            class="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                             </svg>
@@ -112,5 +129,6 @@
         </footer>
     </main>
 
+    <x-confirm-modal />
 </body>
 </html>

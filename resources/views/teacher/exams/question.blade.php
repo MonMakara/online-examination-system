@@ -59,11 +59,11 @@
         <div class="bg-gray-50 border border-gray-200 rounded-xl p-5 relative group">
             <div class="absolute top-4 right-4 flex items-center space-x-2">
                 <a href="{{ route('teacher.questions.edit', $q->id) }}" class="text-xs font-bold text-indigo-600 hover:text-indigo-800 bg-indigo-50 px-2 py-1 rounded transition">Edit</a>
-                <form action="{{ route('teacher.questions.destroy', $q->id) }}" method="POST" class="inline" onsubmit="return confirm('Delete this question?')">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="text-xs font-bold text-red-600 hover:text-red-800 bg-red-50 px-2 py-1 rounded transition">Delete</button>
-                </form>
+                <button 
+                    type="button" 
+                    @click="$dispatch('open-delete-modal', { action: '{{ route('teacher.questions.destroy', $q->id) }}', title: 'Delete Question', message: 'Are you sure you want to delete this question?' })" 
+                    class="text-xs font-bold text-red-600 hover:text-red-800 bg-red-50 px-2 py-1 rounded transition"
+                >Delete</button>
                 <span class="text-xs font-bold text-gray-300 uppercase ml-2">Q{{ $index + 1 }}</span>
             </div>
             <p class="font-bold text-gray-800 mb-3">{{ $q->question }}</p>

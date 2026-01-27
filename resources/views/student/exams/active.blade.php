@@ -95,12 +95,19 @@
 
                     {{-- Footer --}}
                     <div class="p-5 pt-0">
-                        <a href="{{ route('student.exams.start', $exam->id) }}"
-                           onclick="return confirm('Start exam? Timer begins immediately.')"
+                        <button type="button"
+                           @click="$dispatch('open-confirm-modal', { 
+                                action: '{{ route('student.exams.start', $exam->id) }}', 
+                                method: 'GET', 
+                                title: 'Start Exam', 
+                                message: 'Are you sure you want to start this exam? The timer will begin immediately.', 
+                                cta: 'Start',
+                                color: 'blue'
+                           })"
                            class="w-full flex items-center justify-center px-4 py-2.5 rounded-lg text-sm font-bold text-white shadow-sm transition-all
                            {{ $isOverdue ? 'bg-amber-600 hover:bg-amber-700' : 'bg-blue-600 hover:bg-blue-700' }}">
                             {{ $isOverdue ? 'Start Late Submission' : 'Begin Assessment' }}
-                        </a>
+                        </button>
                     </div>
                 </div>
             @empty
@@ -112,6 +119,9 @@
                     <p class="text-gray-500 text-sm mt-1">You have no pending exams at the moment.</p>
                 </div>
             @endforelse
+        </div>
+        <div class="mt-8">
+            {{ $activeExams->appends(['missed_page' => $missedExams->currentPage()])->links() }}
         </div>
     </div>
 
@@ -172,6 +182,9 @@
                     <p class="text-gray-500 text-sm mt-1">You haven't missed any exams.</p>
                 </div>
             @endforelse
+        </div>
+        <div class="mt-8">
+            {{ $missedExams->appends(['active_page' => $activeExams->currentPage()])->links() }}
         </div>
     </div>
 

@@ -55,10 +55,13 @@
 
                 <a href="{{ route('teacher.grades.class', $class->id) }}" 
                     class="block w-full text-center bg-indigo-600 text-white py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-100 transition-all active:scale-95">
-                    View Performance
+                    View Exams
                 </a>
             </div>
         @endforeach
+    </div>
+    <div class="mt-8">
+        {{ $classes->links() }}
     </div>
 </div>
 @endsection

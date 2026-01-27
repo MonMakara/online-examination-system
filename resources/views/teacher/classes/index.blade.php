@@ -64,6 +64,9 @@
         </div>
     @endforelse
 </div>
+<div class="mt-8">
+    {{ $classes->links() }}
+</div>
 
 {{-- Subtle Toast Notification instead of Browser Alert --}}
 <div id="copy-toast" class="fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-2xl text-sm font-bold opacity-0 transition-opacity duration-300 pointer-events-none z-50">

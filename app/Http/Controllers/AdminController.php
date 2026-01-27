@@ -138,7 +138,7 @@ class AdminController extends Controller
             ->withCount('questions')
             ->with(['results.student']) // Eager load results and the student who took it
             ->latest()
-            ->get();
+            ->paginate(10);
 
         return view('admin.classes.show', compact('class', 'students', 'exams'));
     }
@@ -260,7 +260,7 @@ class AdminController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,'.$user->id,
+
             'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'current_password' => 'nullable|required_with:new_password',
             'new_password' => ['nullable', 'confirmed', 'min:6'],
@@ -280,7 +280,7 @@ class AdminController extends Controller
         }
 
         $user->name = $request->name;
-        $user->email = $request->email;
+
 
         $user->save();
 

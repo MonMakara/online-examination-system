@@ -17,7 +17,7 @@ class ExamController extends Controller
             ->with('classRoom')
             ->withCount('questions')
             ->latest()
-            ->get();
+            ->paginate(10);
 
         return view('teacher.exams.index', compact('exams'));
     }
