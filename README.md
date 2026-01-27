@@ -83,4 +83,4 @@ Contributions are welcome! Please fork the repository and submit a pull request 
 
 ## 📄 License
 
-This project is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Copyright © 2026 **MonMakara**. All Rights Reserved.
