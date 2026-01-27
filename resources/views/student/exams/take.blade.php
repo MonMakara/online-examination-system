@@ -170,6 +170,20 @@
 
                     this.tick();
                     this.interval = setInterval(() => this.tick(), 1000);
+                    
+                    // Tab Switching Detection
+                    document.addEventListener('visibilitychange', () => {
+                        if (document.hidden) {
+                            this.handleVisibilityChange();
+                        }
+                    });
+                },
+
+                handleVisibilityChange() {
+                    this.modalMode = 'alert';
+                    this.modalTitle = 'Warning: Tab Switch Detected';
+                    this.confirmMessage = 'You are not allowed to switch tabs or minimize the browser during the exam. Please stay on this screen.';
+                    this.showConfirmModal = true;
                 },
 
                 tick() {
