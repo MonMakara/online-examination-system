@@ -1,5 +1,11 @@
 # Online Examination System
 
+<p align="center">
+    <a href="https://online-examination-system-na0j.onrender.com" target="_blank">
+        <img src="https://img.shields.io/badge/Live%20Demo-Render-46E3B7?style=for-the-badge&logo=render&logoColor=white" alt="Live Demo" />
+    </a>
+</p>
+
 A comprehensive web-based examination platform built with **Laravel 10**, featuring role-based access control for Admins, Teachers, and Students. The system allows for streamlined exam creation, real-time assessment, and automated grading.
 
 ## 🚀 Features
