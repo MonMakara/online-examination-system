@@ -120,7 +120,7 @@
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                     <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center">
                         <h2 class="font-bold text-gray-800">Class Exams</h2>
-                        <a href="{{ route('teacher.exams.create') }}"
+                        <a href="{{ route('teacher.exams.create', ['class_id' => $class->id]) }}"
                             class="text-xs bg-indigo-600 text-white px-2 py-1 rounded hover:bg-indigo-700 transition">Assign
                             New</a>
                     </div>

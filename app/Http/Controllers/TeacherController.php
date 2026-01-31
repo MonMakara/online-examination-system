@@ -56,11 +56,11 @@ class TeacherController extends Controller
         $user = auth()->user();
 
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => ['required', 'string', 'max:255'],
 
-            'profile_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'current_password' => 'nullable|required_with:new_password',
-            'new_password' => 'nullable|min:6|confirmed',
+            'profile_image' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
+            'current_password' => ['nullable', 'required_with:new_password'],
+            'new_password' => ['nullable', 'min:6', 'confirmed'],
         ]);
 
         if ($request->filled('new_password')) {

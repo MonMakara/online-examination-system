@@ -25,6 +25,7 @@ class ClassRoom extends Model
     {
         return $this->hasMany(Exam::class, 'class_id');
     }
+    
     public function getLogoUrlAttribute()
     {
         if ($this->logo) {

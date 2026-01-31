@@ -61,7 +61,7 @@
                 </svg>
                 Add New Teacher
             </a>
-        </div>
+        </div>  
         
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
             <div class="overflow-x-auto">
@@ -152,6 +152,9 @@
             </div>
         </div>
     </div>
+
+    {{-- Delete Confirmation Modal --}}
+    <x-delete-confirm-modal />
 @endsection
 <script>
     document.addEventListener('DOMContentLoaded', function() {

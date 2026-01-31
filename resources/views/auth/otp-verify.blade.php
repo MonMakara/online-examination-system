@@ -27,7 +27,7 @@
                 
                 {{-- Success Message --}}
                 @if (session('success'))
-                    <div class="rounded-md bg-green-50 p-4 mb-4 border border-green-200">
+                    <div class="rounded-md bg-green-50 p-4 mb-4 border border-green-200" role="alert">
                         <div class="flex">
                             <div class="flex-shrink-0">
                                 <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
@@ -43,7 +43,7 @@
 
                 {{-- Global Error Message --}}
                 @if (session('error'))
-                    <div class="rounded-md bg-red-50 p-4 mb-4 border border-red-200">
+                    <div class="rounded-md bg-red-50 p-4 mb-4 border border-red-200" role="alert">
                         <div class="flex">
                             <div class="flex-shrink-0">
                                 <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
@@ -112,6 +112,18 @@
             </div>
         </div>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const alerts = document.querySelectorAll('[role="alert"]');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    alert.style.transition = "opacity 0.5s ease";
+                    alert.style.opacity = "0";
+                    setTimeout(() => alert.remove(), 500);
+                }, 3000);
+            });
+        });
+    </script>
 </body>
 
 </html>

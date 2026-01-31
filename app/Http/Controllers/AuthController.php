@@ -12,13 +12,10 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Laravel\Socialite\Facades\Socialite;
-use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
-    // ==========================================
     // 1. REGISTER
-    // ==========================================
     public function showRegister()
     {
         return view('auth.register');
@@ -35,6 +32,7 @@ class AuthController extends Controller
         $otp = rand(100000, 999999);
 
         $user = new User;
+        
         $user->name = request('name');
         $user->email = request('email');
         $user->password = Hash::make(request('password'));
@@ -64,9 +62,7 @@ class AuthController extends Controller
         return redirect()->route('otp.verify')->with('success', 'Registered! Check email for OTP.');
     }
 
-    // ==========================================
     // 2. LOGIN
-    // ==========================================
     public function showLogin()
     {
         return view('auth.login');
@@ -121,6 +117,7 @@ class AuthController extends Controller
 
     // Verify OTP
     public function verifyOtp(Request $request) {
+        
         $request->validate([
             'otp' => ['required', 'numeric', 'digits:6'],
         ]);
@@ -233,7 +230,7 @@ class AuthController extends Controller
 
     public function sendResetOtp(Request $request)
     {
-        $request->validate(['email' => 'required|email']);
+        $request->validate(['email' => ['required', 'email']]);
         $user = User::where('email', $request->email)->first();
 
         if (!$user) {
@@ -271,7 +268,7 @@ class AuthController extends Controller
 
     public function verifyResetOtp(Request $request)
     {
-        $request->validate(['otp' => 'required|numeric|digits:6']);
+        $request->validate(['otp' => ['required', 'numeric', 'digits:6']]);
         $email = session('reset_email');
         if (!$email) return redirect()->route('password.request')->with('error', 'Session expired.');
 

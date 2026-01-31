@@ -3,7 +3,7 @@
 @section('title', $exam->title)
 
 @section('content')
-    {{-- Added exam ID and the formatted closedAt string to the x-data --}}
+    {{-- Initialize the exam timer with duration and exam metadata --}}
     <div class="container mx-auto px-4 lg:px-8 py-8 pb-24" x-data="examTimer({{ $exam->duration * 60 }}, '{{ $examClosedAt }}', '{{ $examDueAt }}', {{ $exam->id }}, {{ auth()->id() }})">
 
         {{-- Sticky Header --}}
@@ -141,11 +141,12 @@
                 showConfirmModal: false,
                 confirmMessage: '',
                 completionStatus: 'complete',
-                modalMode: 'confirm', // 'confirm' or 'alert'
+                modalMode: 'confirm', // Can be 'confirm' (for submission) or 'alert' (for warnings)
                 modalTitle: '',
 
                 init() {
                     const storageKey = 'exam_timer_' + examId + '_' + userId;
+                    const answersStorageKey = 'exam_answers_' + examId + '_' + userId;
                     const now = Date.now();
 
                     // Base duration
@@ -159,7 +160,7 @@
                         }
                     }
 
-                    // localStorage safety
+                    // Check if there is an existing timer saved in localStorage to prevent reset on refresh
                     const savedEndTime = parseInt(localStorage.getItem(storageKey));
                     if (savedEndTime && savedEndTime < calculatedEndTime) {
                         this.endTime = savedEndTime;
@@ -167,6 +168,41 @@
                         this.endTime = calculatedEndTime;
                         localStorage.setItem(storageKey, this.endTime);
                     }
+                    
+                    // --- Restore Saved Answers ---
+                    // This ensures students don't lose their selected options if they refresh the page
+                    try {
+                        const savedAnswers = JSON.parse(localStorage.getItem(answersStorageKey) || '{}');
+                        Object.keys(savedAnswers).forEach(questionId => {
+                            const value = savedAnswers[questionId];
+                            const radioBtn = document.querySelector(`input[name="answers[${questionId}]"][value="${value}"]`);
+                            if (radioBtn) {
+                                radioBtn.checked = true;
+                            }
+                        });
+                    } catch (e) {
+                        console.error("Error restoring answers:", e);
+                    }
+
+                    // Watch for changes (using event delegation on form)
+                    const form = document.getElementById('examForm');
+                    if(form) {
+                        form.addEventListener('change', (e) => {
+                            if (e.target.name && e.target.name.startsWith('answers[')) {
+                                const qIdMatch = e.target.name.match(/answers\[(\d+)\]/);
+                                if (qIdMatch && qIdMatch[1]) {
+                                    const qId = qIdMatch[1];
+                                    const val = e.target.value;
+                                    
+                                    // Save to local storage
+                                    const currentSaved = JSON.parse(localStorage.getItem(answersStorageKey) || '{}');
+                                    currentSaved[qId] = val;
+                                    localStorage.setItem(answersStorageKey, JSON.stringify(currentSaved));
+                                }
+                            }
+                        });
+                    }
+                    // End restoration logic
 
                     this.tick();
                     this.interval = setInterval(() => this.tick(), 1000);
@@ -190,16 +226,11 @@
                     const distance = this.endTime - Date.now();
 
                     if (distance <= 0) {
-                        this.timerDisplay = "00:00";
+                        this.timerDisplay = "00:00:00";
                         clearInterval(this.interval);
 
                         const form = document.getElementById('examForm');
                         if (form && form.dataset.submitting !== 'true') {
-                            // Show time up modal or just submit
-                            // Ideally, we just submit. Alert blocks interaction which might be bad if tab is backgrounded.
-                            // But user wants "pop up".
-                            // We can use the modal to say "Time is up", then auto-submit after a moment or immediately.
-                            // For now, let's strictly replace the alert.
                             this.modalMode = 'alert';
                             this.modalTitle = 'Time is Up!';
                             this.confirmMessage = 'Your exam time has ended. Submitting your answers now...';
@@ -212,12 +243,20 @@
                         return;
                     }
 
-                    const minutes = Math.floor(distance / (1000 * 60));
+                    const hours = Math.floor(distance / (1000 * 60 * 60));
+                    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
                     const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-                    this.timerDisplay =
-                        minutes.toString().padStart(2, '0') + ':' +
-                        seconds.toString().padStart(2, '0');
+                    if (hours > 0) {
+                        this.timerDisplay =
+                            hours.toString().padStart(2, '0') + ':' +
+                            minutes.toString().padStart(2, '0') + ':' +
+                            seconds.toString().padStart(2, '0');
+                    } else {
+                        this.timerDisplay =
+                            minutes.toString().padStart(2, '0') + ':' +
+                            seconds.toString().padStart(2, '0');
+                    }
                 },
 
                 confirmSubmit() {
@@ -263,6 +302,8 @@
 
                     form.dataset.submitting = 'true';
                     localStorage.removeItem('exam_timer_' + examId + '_' + userId);
+                    // Also clear answers on submit
+                    localStorage.removeItem('exam_answers_' + examId + '_' + userId);
                     form.submit();
                 }
             }

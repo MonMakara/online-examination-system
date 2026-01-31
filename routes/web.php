@@ -18,29 +18,29 @@ Route::controller(AuthController::class)->group(function () {
     Route::get('/login', 'showLogin')->name('show-login');
     Route::get('/register', 'showRegister')->name('show-register');
 
-    Route::get('/verify-otp', [AuthController::class, 'showOtpForm'])->name('otp.verify');
-    Route::post('/verify-otp', [AuthController::class, 'verifyOtp'])->name('otp.verify.submit');
+    Route::get('/verify-otp', 'showOtpForm')->name('otp.verify');
+    Route::post('/verify-otp', 'verifyOtp')->name('otp.verify.submit');
 
     // Forgot Password
-    Route::get('/forgot-password', [AuthController::class, 'showForgotPasswordForm'])->name('password.request');
-    Route::post('/forgot-password/send', [AuthController::class, 'sendResetOtp'])->name('password.email');
-    Route::get('/forgot-password/verify', [AuthController::class, 'showResetOtpForm'])->name('password.otp.form');
-    Route::post('/forgot-password/verify', [AuthController::class, 'verifyResetOtp'])->name('password.otp.verify');
+    Route::get('/forgot-password', 'showForgotPasswordForm')->name('password.request');
+    Route::post('/forgot-password/send', 'sendResetOtp')->name('password.email');
+    Route::get('/forgot-password/verify', 'showResetOtpForm')->name('password.otp.form');
+    Route::post('/forgot-password/verify', 'verifyResetOtp')->name('password.otp.verify');
 
     // Reset password
-    Route::get('/reset-password', [AuthController::class, 'showNewPasswordForm'])->name('password.reset.form');
-    Route::post('/reset-password', [AuthController::class, 'updatePassword'])->name('password.update');
+    Route::get('/reset-password', 'showNewPasswordForm')->name('password.reset.form');
+    Route::post('/reset-password', 'updatePassword')->name('password.update');
 
     // Google Auth
-    Route::get('auth/google', [AuthController::class, 'redirectToGoogle'])->name('auth.google');
-    Route::get('auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
+    Route::get('auth/google', 'redirectToGoogle')->name('auth.google');
+    Route::get('auth/google/callback', 'handleGoogleCallback');
 
     Route::post('/register', 'register')->name('register');
     Route::post('/login', 'login')->name('login');
     Route::post('/logout', 'logout')->name('logout');
 
-    Route::get('/account/delete', [AuthController::class, 'showDeleteAccount'])->name('account.delete.show');
-    Route::delete('/account/delete', [AuthController::class, 'destroyAccount'])->name('account.delete');
+    Route::get('/account/delete', 'showDeleteAccount')->name('account.delete.show');
+    Route::delete('/account/delete', 'destroyAccount')->name('account.delete');
 });
 
 // Admin Routes

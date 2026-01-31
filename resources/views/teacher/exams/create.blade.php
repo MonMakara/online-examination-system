@@ -42,7 +42,7 @@
                                 class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none transition bg-white font-medium">
                             <option value="" disabled selected>Select a class</option>
                             @foreach($classes as $class)
-                                <option value="{{ $class->id }}">{{ $class->name }}</option>
+                                <option value="{{ $class->id }}" {{ request('class_id') == $class->id ? 'selected' : '' }}>{{ $class->name }}</option>
                             @endforeach
                         </select>
                     </div>

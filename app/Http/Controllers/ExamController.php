@@ -69,11 +69,11 @@ class ExamController extends Controller
         $exam = Exam::where('teacher_id', auth()->id())->findOrFail($id);
 
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'class_id' => 'required|exists:class_rooms,id',
-            'duration' => 'required|integer|min:1',
-            'due_at' => 'nullable|date',
-            'closed_at' => 'nullable|date|after_or_equal:due_at',
+            'title' => ['required', 'string', 'max:255'],
+            'class_id' => ['required', 'exists:class_rooms,id'],
+            'duration' => ['required', 'integer', 'min:1'],
+            'due_at' => ['nullable', 'date'],
+            'closed_at' => ['nullable', 'date', 'after_or_equal:due_at'],
         ]);
 
         $exam->update($validated);

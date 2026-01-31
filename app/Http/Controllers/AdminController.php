@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ClassRoom;
+use App\Models\Exam;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -11,19 +12,20 @@ use App\Services\ImageUploadService;
 
 class AdminController extends Controller
 {
-    // Dashboard
+    // Admin Dashboard
     public function dashboard()
     {
         $teachers = User::where('role', 'teacher')->get();
-        // Optimization: Don't load all classes if just displaying a list. Use pagination or limit.
-        // If this is for a "Recent Classes" widget, take(5). If for stats, use count().
-        $classes = ClassRoom::with('teacher')->latest()->take(5)->get();
+        
+        // Paginate classes for better performance since we only show 5 at a time
+        $classes = ClassRoom::with('teacher')->latest()->paginate(5);
+        
         $studentCount = User::where('role', 'student')->count();
 
         return view('admin.dashboard', compact('teachers', 'classes', 'studentCount'));
     }
 
-    /* Teachers management */
+    // --- Teacher Management ---
 
     // Show teachers page
     public function indexTeachers(Request $request)
@@ -55,9 +57,9 @@ class AdminController extends Controller
     public function storeTeachers(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:6|confirmed',
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'unique:users,email'],
+            'password' => ['required', 'min:6', 'confirmed'],
         ]);
 
         User::create([
@@ -86,8 +88,8 @@ class AdminController extends Controller
         $teacher = User::where('role', 'teacher')->findOrFail($id);
 
         $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,'.$id,
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'unique:users,email,'.$id],
         ]);
 
         $teacher->update([
@@ -112,9 +114,7 @@ class AdminController extends Controller
     }
 
 
-    /* Classes management */
-
-    // Show classes page
+    // --- Class Management ---
     public function indexClasses(Request $request)
     {
         $query = ClassRoom::with('teacher')->withCount('students');
@@ -123,7 +123,7 @@ class AdminController extends Controller
             $query->where('name', 'like', '%'.$request->search.'%');
         }
 
-        $classes = $query->paginate(10)->withQueryString();
+        $classes = $query->paginate(10)->appends($request->query());
 
         return view('admin.classes.index', compact('classes'));
     }
@@ -134,7 +134,7 @@ class AdminController extends Controller
         $students = $class->students()->paginate(10);
         
         // Fetch exams with their results
-        $exams = \App\Models\Exam::where('class_id', $id)
+        $exams = Exam::where('class_id', $id)
             ->withCount('questions')
             ->with(['results.student']) // Eager load results and the student who took it
             ->latest()
@@ -156,9 +156,9 @@ class AdminController extends Controller
     public function storeClasses(Request $request, ImageUploadService $imageService)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'teacher_id' => 'required|exists:users,id',
-            'logo' => 'nullable|image|mimes:jpeg,png,jpg,svg|max:2048', 
+            'name' => ['required', 'string', 'max:255'],
+            'teacher_id' => ['required', 'exists:users,id'],
+            'logo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,svg', 'max:2048'], 
         ]);
 
         $logoPath = null;
@@ -192,9 +192,9 @@ class AdminController extends Controller
         $class = ClassRoom::findOrFail($id);
 
         $request->validate([
-            'name' => 'required|string|max:255',
-            'teacher_id' => 'required|exists:users,id',
-            'logo' => 'nullable|image|mimes:jpeg,png,jpg,svg|max:2048', // Added logo validation
+            'name' => ['required', 'string', 'max:255'],
+            'teacher_id' => ['required', 'exists:users,id'],
+            'logo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,svg', 'max:2048'], // Added logo validation
         ]);
 
         if ($request->hasFile('logo')) {
@@ -232,7 +232,7 @@ class AdminController extends Controller
             });
         }
 
-        $students = $query->paginate(10)->withQueryString();
+        $students = $query->paginate(10)->appends($request->query());
 
         return view('admin.students.index', compact('students'));
     }
@@ -259,10 +259,10 @@ class AdminController extends Controller
         $user = auth()->user();
 
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => ['required', 'string', 'max:255'],
 
-            'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'current_password' => 'nullable|required_with:new_password',
+            'profile_image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
+            'current_password' => ['nullable', 'required_with:new_password'],
             'new_password' => ['nullable', 'confirmed', 'min:6'],
         ]);
 

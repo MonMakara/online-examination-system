@@ -27,7 +27,7 @@
                         Student ID: #{{ $student->id }}
                     </span>
                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
-                        Joined {{ $student->created_at->format('M Y') }}
+                        Joined {{ $student->created_at->format('d M Y') }}
                     </span>
                 </div>
             </div>

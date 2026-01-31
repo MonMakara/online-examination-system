@@ -212,7 +212,6 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Find all alert divs
         const alerts = document.querySelectorAll('[role="alert"]');
 
         alerts.forEach(alert => {
@@ -220,7 +219,7 @@
                 alert.style.transition = "opacity 0.5s ease";
                 alert.style.opacity = "0";
                 setTimeout(() => alert.remove(), 500);
-            }, 3000); // 3 seconds
+            }, 3000);
         });
     });
 </script>

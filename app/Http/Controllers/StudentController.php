@@ -10,7 +10,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
 
 use App\Services\ImageUploadService;
 
@@ -37,11 +36,11 @@ class StudentController extends Controller
         return view('student.dashboard', compact('classes', 'pendingExamsCount'));
     }
 
-    // Join class
+    // Join a class using a code
     public function joinClass(Request $request)
     {
         $request->validate([
-            'code' => 'required|string|exists:class_rooms,code',
+            'code' => ['required', 'string', 'exists:class_rooms,code'],
         ], [
             'code.required' => 'Please enter a class code.',
             'code.exists' => 'Invalid class code. Please check and try again.',
@@ -49,19 +48,18 @@ class StudentController extends Controller
 
         $user = auth()->user();
 
-        // 1. Check if the user is actually a student
         if ($user->role !== 'student') {
             return back()->with('warning', 'Only students can join classes.');
         }
 
         $class = ClassRoom::where('code', $request->code)->first();
 
-        // 2. Check if student is already in the class
+        // Check if student is already in the class
         if ($class->students()->where('users.id', $user->id)->exists()) {
             return back()->with('warning', 'You are already in this class.');
         }
 
-        // 3. Attach the student to the class
+        // Add the student to the class
         $class->students()->attach($user->id);
 
         return redirect()->route('student.dashboard')->with('success', 'Successfully joined ' . $class->name . '!');
@@ -93,22 +91,21 @@ class StudentController extends Controller
         $user = auth()->user();
 
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => ['required', 'string', 'max:255'],
 
-            'profile_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'current_password' => 'nullable|required_with:new_password',
-            'new_password' => 'nullable|min:6|confirmed',
+            'profile_image' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
+            'current_password' => ['nullable', 'required_with:new_password'],
+            'new_password' => ['nullable', 'min:6', 'confirmed'],
         ]);
 
-        // Password Update Logic
         if ($request->filled('new_password')) {
+
             if (! Hash::check($request->current_password, $user->password)) {
                 return back()->withErrors(['current_password' => 'The provided current password does not match our records.']);
             }
             $user->password = Hash::make($request->new_password);
         }
 
-        // Image Upload Logic
         if ($request->hasFile('profile_image')) {
             $url = $imageService->upload($request->file('profile_image'), 'student_profiles');
             $user->profile_image = $url;
@@ -127,12 +124,10 @@ class StudentController extends Controller
         $studentId = auth()->id();
         $now = now();
 
-        // 1. Get Class IDs
         $enrolledClassIds = DB::table('class_student')
             ->where('student_id', $studentId)
             ->pluck('class_id');
 
-        // 2. Base Query: Exams in my classes that I have NOT taken yet
         $baseQuery = Exam::whereIn('class_id', $enrolledClassIds)
             ->whereDoesntHave('results', function ($query) use ($studentId) {
                 $query->where('user_id', $studentId);
@@ -140,7 +135,6 @@ class StudentController extends Controller
             ->with(['classRoom.teacher'])
             ->withCount('questions');
 
-        // 3. Fetch Active Exams (No close date OR close date is in future)
         $activeExams = (clone $baseQuery)
             ->where(function ($query) use ($now) {
                 $query->whereNull('closed_at')
@@ -149,7 +143,6 @@ class StudentController extends Controller
             ->latest()
             ->paginate(10, ['*'], 'active_page');
 
-        // 4. Fetch Missed Exams (Close date has passed)
         $missedExams = (clone $baseQuery)
             ->where('closed_at', '<=', $now)
             ->latest()
@@ -162,18 +155,15 @@ class StudentController extends Controller
     {
         $studentId = auth()->id();
 
-        // Fetch exam with questions and the teacher through classroom
         $exam = Exam::with(['questions', 'classRoom.teacher'])
             ->withCount('questions')
             ->findOrFail($id);
 
-        // Security: Check if already submitted
         $alreadyTaken = Result::where('exam_id', $id)->where('user_id', $studentId)->exists();
         if ($alreadyTaken) {
             return redirect()->route('student.exams.index')->with('warning', 'You have already completed this exam.');
         }
 
-        // Deadline Check: Is it hard closed?
         if ($exam->closed_at && now()->gt($exam->closed_at)) {
             return redirect()->route('student.exams.index')->with('warning', 'This exam is now closed.');
         }
@@ -199,19 +189,17 @@ class StudentController extends Controller
         $exam = Exam::with('questions')->findOrFail($id);
         $now = now();
 
-        // 1. Hard Lock check
         if ($exam->closed_at && $now->gt($exam->closed_at)) {
             return redirect()->route('student.exams.index')
                 ->with('warning', 'The submission window for this exam has closed.');
         }
 
-        // 2. Prevent Duplicate Submission
         $alreadyTaken = Result::where('exam_id', $id)->where('user_id', $userId)->exists();
         if ($alreadyTaken) {
             return redirect()->route('student.exams.index')->with('warning', 'You have already submitted this exam.');
         }
 
-        $request->validate(['answers' => 'required|array']);
+        $request->validate(['answers' => ['required', 'array']]);
         $studentAnswers = $request->input('answers');
         $correctCount = 0;
         $totalQuestions = $exam->questions->count();
@@ -256,7 +244,6 @@ class StudentController extends Controller
             ->with('success', 'Exam submitted successfully! Score: ' . round($finalScore) . '%');
     }
 
-
     public function myResults()
     {
         $results = Result::where('user_id', auth()->id())
@@ -271,15 +258,11 @@ class StudentController extends Controller
     {
         $userId = auth()->id();
 
-        // 1. Fetch Result and verify ownership (Security)
         $result = Result::where('id', $id)
             ->where('user_id', $userId)
             ->with('exam.classRoom')
             ->firstOrFail();
 
-        // 2. Fetch Exam with Questions
-        // We also fetch the 'studentAnswers' relation specifically for this user
-        // so we can map Question ID -> Selected Option easily in the view.
         $exam = Exam::with(['questions' => function ($q) use ($userId) {
             $q->with(['studentAnswers' => function ($sa) use ($userId) {
                 $sa->where('user_id', $userId);
